@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+## Simple demo of a rospy service
+## avg_floats is the name of the module
+from avg_floats.srv import *
+PKG = 'avg_floats'  # this package name
+NAME = 'avg_five_floats'
+
+import roslib; roslib.load_manifest(PKG) 
+
+# import the AvgFloats service
+from std_msgs.msg import String
+import rospy 
+
+
+def avg_five_floats(req):
+    print("Returning the avg of (%s, %s, %s, %s, %s)" % (req.a, req.b, req.c, req.d, req.e))
+    return AvgFloatsResponse((req.a + req.b + req.c + req.d + req.e)/5)
+
+
+def avg_five_floats_server():
+    rospy.init_node(NAME)
+    s = rospy.Service('avg_five_floats', AvgFloats, avg_five_floats)
+
+    rospy.spin()
+
+if __name__ == "__main__":
+    print("[avg_floats server] Please keep this running in a separate tab.\n[SYNTAX HELP] rosrun avg_floats avg_floats_client arg1 arg2 arg3 arg4 arg5\n")
+    avg_five_floats_server()

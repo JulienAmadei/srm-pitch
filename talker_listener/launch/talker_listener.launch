@@ -1,0 +1,6 @@
+<launch>
+        <!-- Talker Node -->
+        <node pkg="talker_listener" type="talker.py" name="talker" output="screen" launch-prefix="gnome-terminal --command"/>
+        <!-- Listener Node -->
+        <node pkg="talker_listener" type="listener.py" name="listener" output="screen" launch-prefix="gnome-terminal --command"/>
+</launch>
