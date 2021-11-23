@@ -9,12 +9,12 @@ NAME = 'avg_five_floats'
 import roslib; roslib.load_manifest(PKG) 
 
 # import the AvgFloats service
-from std_msgs.msg import String
+from std_msgs.msg import  String, Float64
 import rospy 
 
 
 def avg_five_floats(req):
-    print("Returning the avg of (%s, %s, %s, %s, %s)" % (req.a, req.b, req.c, req.d, req.e))
+    print("Returning the avg of %f, %f, %f, %f, %f." % (req.a, req.b, req.c, req.d, req.e))
     return AvgFloatsResponse((req.a + req.b + req.c + req.d + req.e)/5)
 
 

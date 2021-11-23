@@ -1,4 +1,0 @@
-<launch>
-        <!-- Launch the Server -->
-        <node pkg="avg_floats" type="avg_floats_server" name="server" output="screen" launch-prefix="gnome-terminal --command"/>
-</launch>

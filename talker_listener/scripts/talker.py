@@ -13,7 +13,7 @@ from std_msgs.msg import String
 def talker():
     # Node is publishing to the messages topic using the message type String.
     # Queue size prevents from displaying too many messages if any subscriber is not receiving them fast enough.
-    pub = rospy.Publisher('messages', String, queue_size = 10) 
+    pub = rospy.Publisher('average', String, queue_size = 10) 
     
     # Tells rospy the name of the node -- until rospy has this information, it cannot start communicating with the ROS Master.
     # anonymous = True ensures that the node has a unique name by adding random numbers to the end of it.
