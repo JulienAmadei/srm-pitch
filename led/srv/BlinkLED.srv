@@ -1,0 +1,6 @@
+int32 time
+int32 mode
+int32[] color
+---
+bool ret
+
