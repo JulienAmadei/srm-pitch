@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>motor</name>
+  <name>servo</name>
   <version>0.0.1</version>
   <description>Servo_motion_package</description>
   <maintainer email="louis.guigon@sigma-clermont.fr" >Louis Guigon</maintainer>

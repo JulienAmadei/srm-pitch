@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS actionlib message_generation)
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 ## Add actions
-add_action_files(DIRECTORY action FILES Motor.action)
+add_action_files(DIRECTORY action FILES Servo.action)
 
 ## Generate messages
 generate_messages(DEPENDENCIES std_msgs actionlib_msgs)

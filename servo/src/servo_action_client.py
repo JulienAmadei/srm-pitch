@@ -1,34 +1,24 @@
 #! /usr/bin/env python3
 
 from __future__ import print_function
-
 import sys
-
 import rospy
-# Brings in the SimpleActionClient
 import actionlib
-
-
 import time
-# Brings in the messages used by the fibonacci action, including the
-# goal message and the result message.
 import servo.msg
 
-def motor_client():
-    # Creates the SimpleActionClient, passing the type of the action
-    # (FibonacciAction) to the constructor.
+def servo_client():
     client = actionlib.SimpleActionClient('servo_action_server', servo.msg.ServoAction)
-    print('step 1 ok')
+    print('Client created !')
     # Waits until the action server has started up and started
     # listening for goals.
     client.wait_for_server()
-    print('server ok')
+    print('Server launched !')
     # Creates a goal to send to the action server.
-    goal = servo.msg.ServoGoal(order='Z+')
-
+    goal = servo.msg.ServoGoal(H=20,V=10)
     # Sends the goal to the action server.
     client.send_goal(goal)
-    print('goal sent')
+    print(f'Goal sent (H:{goal.H}, V:{goal.V})')
 
 ########### TODO ##########
 # Retour valeur axe Z et valeur axe X ==> feedback 
@@ -38,9 +28,9 @@ def motor_client():
     client.cancel_goal()
     time.sleep(2)
     
-    goal = servo.msg.ServoGoal(order='Z-')
+    goal = servo.msg.ServoGoal(H=-10,V=-5)
     client.send_goal(goal)
-    print('goal sent')
+    print(f'Goal sent (H:{goal.H}, V:{goal.V})')
     time.sleep(5)
     client.cancel_goal()
     # Waits for the server to finish performing the action.
@@ -55,9 +45,9 @@ if __name__ == '__main__':
         # Initializes a rospy node so that the SimpleActionClient can
         # publish and subscribe over ROS.
         rospy.init_node('servo_client')
-        print('init done')
+        print('Init done !')
         result = servo_client()
         #print("Result:", result.success)
     except rospy.ROSInterruptException:
-        print("program interrupted before completion", file=sys.stderr)
+        print("Program has been interrupted before completion", file=sys.stderr)
 
