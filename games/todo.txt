@@ -1,0 +1,2 @@
+A faire:
+- Simplifier (ie: éviter de répéter des définitions/fonctions/var, et les mettre dans une bibliothèque)

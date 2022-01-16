@@ -7,52 +7,38 @@
 # Packages importation
 #% Some are already imported in main_init
 from random import randint
-#% Add game 1 specific ones.
+from AB2.behaviour.py import colors_array, wanna_play, vibrate, lightup, result_behaviour
+#% Add game 2 specific ones.
 
 ############################################################################# 
-#% Initialisation
-colors_IDs={
+#% Dictionnaries Initialisation
+wheel_color_IDs={
     1: "red",
     2: "green",
     3: "blue"
 }
-
-colors_array={
-    "red": [255, 0, 0],
-    "green": [0, 255, 0], # Green
-    "blue": [0, 0, 255]  # Blue
-}
-
-gameSet = False
-
-def init():
+wheel_gameSet = False
+wheel_playerReady = True
+#############################################################################
+def wheel_init():
     #% Game 2's own init stuff goes here, such as  PINS / global variables / (?)
-   
-    #% Functions too
     print("Wait a moment ! I'm setting up the Wheel Game playground.")
-
 ############################################################################# 
-# Defining game-launching functions
-def countdown(intTime):
-    #% Buzz one second X times to mimic countdown from intTime to 0
-    print("3... 2... 1...")
-############################################################################# 
-
-def wheel_choice():
+def wheel_pitch_guess():
     #% Generate random choice 
-    color_choice = colors_IDs[randint(1,3)]
-    color_array = colors_array[color_choice]
-    print(f"I bet it is going to land on... {color_choice} ! I'll light up in {color_choice} ({color_array})")
+    wheel_guessed_color = wheel_color_IDs[randint(1,3)]
+    color_array = colors_array[wheel_guessed_color]
+    print(f"I bet it is going to land on... {wheel_guessed_color} ! I'll light up in {wheel_guessed_color} ({color_array})")
     #% Light up LED accordingly
-    return color_array
+    return wheel_guessed_color
 
-def camera_analysis():
+def wheel_camera_analysis():
     #% Camera stuff to find fingers goes here
-    print(f"Oh, I see ... {seen_color} !")
-    return seen_color
+    print(f"Oh, I see ... {wheel_result_color} !")
+    return wheel_result_color
 
-def game_state(pitch_choice,user_choice):
-    if color_array == seen_color:
+def game_state(wheel_guessed_color,wheel_result_color):
+    if wheel_guessed_color == wheel_result_color:
         print("I guessed right !")
         state = True
     else:
@@ -64,22 +50,23 @@ def game_state(pitch_choice,user_choice):
 ############################################################################# 
 if __name__ == '__main__':
     try:
-        init()
+        wheel_init()
         print("I'm ready to go !")
-        while(not gameSet): # Forever loop
-            pitch_choice = wheel_choice()
-            user_result = camera_analysis()
-            (gameSet,state) = game_state(pitch_choice,user_result)
-        #% Run result.py with state for behavour (happy/sad)
-        pitch_result(state)
+        while(player_ready_wheel):
+            while(not gameSet): # Forever loop
+                pitch_guess = wheel_pitch_guess()
+                wheel_result = wheel_camera_analysis()
+                (gameSet,state) = game_state(wheel_result,wheel_result)
+            #% Run result.py with state for behavour (happy/sad)
+            result_behaviour(state)
 
-        if(state): # Pitch won
-            print("Wanna play again ?")
-            #% Use the wanna_play function
-            player_ready_wheel = wanna_play()
-        else:
-            print("Let's stop it there.")
-            player_ready_wheel = False
+            if(state): # Pitch won
+                print("Wanna play again ?")
+                #% Use the wanna_play function
+                wheel_playerReady = wanna_play()
+            else:
+                print("Let's stop it there.")
+                wheel_playerReady = False
                 
     except rospy.ROSInterruptException:
         print("The program (main_wheel.py) has just been interrupted !", file=sys.stderr)

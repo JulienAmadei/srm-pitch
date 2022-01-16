@@ -11,19 +11,19 @@ import sys
 from tkinter import E
 import rospy
 import time
-#% Add more as necessary !
+from AB2.behaviour.py import wanna_play
 
-player_read = False
+#% Add more as necessary !
 ############################################################################# 
 #% Initialisation
-def init():
+def pitch_init():
     #% Global init stuff goes here, such as  PINS / global variables / (?)
     #% Functions too
+    global player_ready
+    player_ready = False
     print("I'm starting up !")
-   
-
-############################################################################# 
-# User lookup
+#############################################################################
+# Function is used to look for an user around the robot's location.
 def look_for_user():
     #% Camera stuff / loop goes here.
         #% To begin, Analyse image at camera starting position
@@ -34,19 +34,6 @@ def look_for_user():
                 #% Then break the loop.
         #% Look around to find someone (camera pan/tilt, maybe self-rotation if needed)
         print("Seems no one is nearby... I'll look around.")
-
-############################################################################# 
-# Query for playing
-def wanna_play():
-    print("Wanna play ?")
-    #% Camera stuff goes here.
-        #% Analyse thumbs up or down
-            #% If thumbs up, the user "accepts", and Pitch buzzes.
-                print("Ok !")
-                #% Ask for the game using remote.
-            #% If thumbs down, the user "declines", and Pitch looks down and backs away.
-            print("Well, maybe another time...")
-
 ############################################################################# 
 # Defining game-launching functions
 def game_RPS():
@@ -70,27 +57,24 @@ def game_choice(argument): # Switch case - Python version
     }
     game = game_IDs.get(argument, lambda: "That's not a game I know... (Invalid game ID)")
     game() # Execute the function corresponding to input
-
 ############################################################################# 
 if __name__ == '__main__':
     try:
         print('Beginning Pitch Startup')
-        init()
+        pitch_init()
         print("I'm ready to go !")
         while(True):
+            look_for_user()
+            print('Hello there !')
             while(not player_ready):
-                look_for_user()
-                print('Hello there !')
-                player_ready = wanna_play()
-                
+                player_ready = wanna_play()    
             while(player_ready): # Forever loop
                 #% Get the info from the IR remote (cf. IR client)
                 #% (need to change 1/2/3 in game_choice to button IDs !)
-                print("What game do you want to play ? Use the remote to tell me !")
-                input = readIR
+                print("What game do you want to play ? Use the IR remote to tell me !")
+                input = readIRCLIENTOUI
                 game_choice(input)
                 #% The game ends.
-                player_ready = wanna_play()
-                print("Okay, thanks for playing !")
+            print("Okay, thanks for playing !")
     except rospy.ROSInterruptException:
         print("The program (main_init.py) has just been interrupted !", file=sys.stderr)

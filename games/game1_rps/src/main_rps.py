@@ -7,24 +7,17 @@
 # Packages importation
 #% Some are already imported in main_init
 from random import randint
-from AB2.results.py import result_behavior
+from AB2.behaviour.py import colors_array, wanna_play, vibrate, lightup, result_behaviour
 #% Add game 1 specific ones.
 
 ############################################################################# 
-#% Initialisation
-moves={
+#% Dictionnaries Initialisation
+RPS_moves={
     1: "Rock",
     2: "Paper",
     3: "Scissors"
 }
-
-colors={
-    1: [255, 0, 0], # Red
-    2: [0, 255, 0], # Green
-    3: [0, 0, 255] # Blue
-}
-
-scenarios={ # Win == True | None = Match Nul
+RPS_scenarios={ # Win == True | None = Match Nul
     (1,3): True,
     (2,1): True,
     (3,2): True,
@@ -35,65 +28,57 @@ scenarios={ # Win == True | None = Match Nul
     (2,3): False,
     (3,1): False
 }
-gameSet = False
-
-def init():
+RPS_gameSet = False
+RPS_playerReady = True
+#############################################################################
+def RPS_init():
     #% Game 1's own init stuff goes here, such as  PINS / global variables / (?)
-   
-    #% Functions too
     print("Wait a moment ! I'm setting up the RPS playground.")
-
 ############################################################################# 
-# Defining game-launching functions
-def countdown(intTime):
-    #% Buzz one second X times to mimic countdown from intTime to 0
-    print("3... 2... 1...")
-############################################################################# 
-
-def RPS_choice():
+def RPS_pitch_move():
     #% Generate random choice 
-    pitch_choice = moves[randint(1,3)]
-    color = colors[pitch_choice]
-    print(f"I'm going with... {pitch_choice} ! I'll light up in {color}")
-    #% Light up LED accordingly
-    return pitch_choice
+    pitch_move = RPS_moves[randint(1,3)]
+    indicator_color = colors_array[pitch_move]
+    print(f"I'm going with... {pitch_move} ! I'll light up in {colors_array}")
+    #% Light up LED accordingly with indicator_color
+    lightup(indicator_color)
+    return pitch_move
 
-def camera_analysis():
+def RPS_camera_analysis():
     #% Camera stuff to find fingers goes here
-    print(f"Oh, so your move is... {user_choice} !")
-    return user_choice
+    print(f"Oh, so your move is... {user_move} !")
+    return user_move
 
-def game_state(pitch_choice,user_choice):
-    state = scenarios([pitch_choice, user_choice])
+def RPS_game_state(pitch_move,user_move):
+    state = RPS_scenarios([pitch_move, user_move])
     if state == None:
         print("It's a tie ! Let's go again.")
         gameSet = False
     else:
         gameSet = True
     return (gameSet,state)
-
 ############################################################################# 
 if __name__ == '__main__':
     try:
-        init()
+        RPS_init()
         print("I'm ready to go !")
 
-        while(player_ready_RPS):
+        while(RPS_playerReady):
             while(not gameSet): # Forever loop
-                pitch_choice = RPS_choice()
-                user_choice = camera_analysis()
-                (gameSet,state) = game_state(pitch_choice,user_choice)
+                pitch_move = RPS_pitch_move()
+                user_move = RPS_camera_analysis()
+                (gameSet,state) = RPS_game_state(pitch_move,user_move)
             
-            #% Run result.py with state for behavour (happy/sad)
-            result_behavior(state)
+            #% Run results action from behaviour.py for behavour (happy/sad)
+            result_behaviour(state)
             
             if(state): # Pitch won
                 print("Wanna play again ?")
                 #% Use the wanna_play function
-                player_ready_RPS = wanna_play()
+                RPS_playerReady = wanna_play()
             else:
                 print("Let's stop it there.")
-                player_ready_RPS = False
+                RPS_playerReady = False
 
     except rospy.ROSInterruptException:
         print("The program (main_rps.py) has just been interrupted !", file=sys.stderr)
