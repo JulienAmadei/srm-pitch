@@ -8,8 +8,11 @@ project(camera)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  image_transport
   roscpp
   rospy
+  sensor_msgs
   std_msgs
 )
 
@@ -70,7 +73,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -104,8 +107,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES camera
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  LIBRARIES cv_basics
+#  CATKIN_DEPENDS cv_bridge image_transport roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -120,9 +123,22 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+catkin_install_python(PROGRAMS 
+	src/object_detection.py
+	src/color_selection.py
+	src/edge_detection.py
+	src/image_autoadjust.py
+	src/webcam_pub.py
+	src/webcam_sub.py
+	src/distance_finder.py
+	src/distance_finder_picture.py
+	src/create_data.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/camera.cpp
+#   src/${PROJECT_NAME}/cv_basics.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -133,7 +149,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/camera_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/cv_basics_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,7 +213,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_camera.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_cv_basics.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
