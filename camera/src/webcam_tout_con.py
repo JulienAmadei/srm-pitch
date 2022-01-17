@@ -5,5 +5,5 @@ while True :
 
   ret, frame = cap.read()
   if ret == True:
-    cv2.imshow(frame)
+    cv2.imshow('frame',frame)
 

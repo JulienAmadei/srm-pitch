@@ -133,6 +133,9 @@ catkin_install_python(PROGRAMS
 	src/distance_finder.py
 	src/distance_finder_picture.py
 	src/create_data.py
+	src/webcam_pub_autoadjust.py
+	src/edge.py
+	src/mainGestures.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

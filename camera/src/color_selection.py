@@ -13,6 +13,9 @@ from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Image
 import cv2 # OpenCV library
 import numpy as np
 
+def empty(a):
+    pass
+
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV",640,240)
 cv2.createTrackbar("HUE Min","HSV",0,179,empty)
@@ -21,10 +24,6 @@ cv2.createTrackbar("SAT Min","HSV",0,255,empty)
 cv2.createTrackbar("SAT Max","HSV",255,255,empty)
 cv2.createTrackbar("VALUE Min","HSV",0,255,empty)
 cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
-
-
-def empty(a):
-    pass
     
 def color_main(data):
  
@@ -69,7 +68,7 @@ def ros_main():
   rospy.init_node('video_sub_py', anonymous=True)
    
   # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, callback)
+  rospy.Subscriber('video_frames', Image, color_main)
  
   # spin() simply keeps python from exiting until this node is stopped
   rospy.spin()
