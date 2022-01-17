@@ -17,6 +17,11 @@ RPS_moves={
     2: "Paper",
     3: "Scissors"
 }
+RPS_colors={
+    "Rock":[0, 0, 255],
+    "Paper": [0, 255, 0],
+    "Scissors": [255, 0, 0] 
+}
 RPS_scenarios={ # Win == True | None = Match Nul
     (1,3): True,
     (2,1): True,
@@ -39,7 +44,7 @@ def RPS_pitch_move():
     #% Generate random choice 
     pitch_move = RPS_moves[randint(1,3)]
     indicator_color = colors_array[pitch_move]
-    print(f"I'm going with... {pitch_move} ! I'll light up in {colors_array}")
+    print(f"I'm going with... {pitch_move} ! I'll light up in {RPS_colors}")
     #% Light up LED accordingly with indicator_color
     lightup(indicator_color)
     return pitch_move
