@@ -1,0 +1,14 @@
+<launch>
+  <node
+    pkg="camera"
+    type="webcam_pub.py"
+    name="webcam_pub"
+    output="screen"
+  />
+  <node
+    pkg="camera"
+    type="image_autoadjust.py"
+    name="image_autoadjust"
+    output="screen"
+  />
+</launch>
