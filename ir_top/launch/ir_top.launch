@@ -1,0 +1,6 @@
+<launch>
+        <!-- Talker Node -->
+        <node pkg="ir_top" type="ir_top_talker.py" name="ir_top_talker" output="screen" launch-prefix="gnome-terminal --command"/>
+        <!-- Listener Node -->
+        <node pkg="ir_top" type="ir_top_listener.py" name="ir_top_listener" output="screen" launch-prefix="gnome-terminal --command"/>
+</launch>
