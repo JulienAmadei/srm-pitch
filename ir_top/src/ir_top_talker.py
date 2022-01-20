@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import RPi.GPIO as GPIO
 import time
-
+from std_msgs.msg import Bool
 def talker():
-    pub_L = rospy.Publisher('ir_topL', bool, queue_size = 10) 
-    pub_R = rospy.Publisher('ir_topR', bool, queue_size = 10) 
+    pub_L = rospy.Publisher('ir_topL', Bool, queue_size = 10) 
+    pub_R = rospy.Publisher('ir_topR', Bool, queue_size = 10) 
     rospy.init_node('ir_top_talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
 
     while not rospy.is_shutdown():
-        DL_status = bool(GPIO.input(DL))
-        DR_status = bool(GPIO.input(DR))
+        DL_status = GPIO.input(DL)
+        DR_status = GPIO.input(DR)
 
         msg_L = "Output for Left IR (%s)" % DL_status
         msg_R = "Output for Right IR (%s)" % DR_status

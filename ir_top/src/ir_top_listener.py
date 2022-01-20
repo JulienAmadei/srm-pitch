@@ -1,13 +1,8 @@
-## Listener that listens to strings published to the 'messages' topic
-# With help from http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29#rospy_tutorials.2FTutorials.2FWritingPublisherSubscriber.The_Code-1
-
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # To write a ROS Node
 import rospy
-# Use the "string" type
-from std_msgs.msg import String 
-
+from std_msgs.msg import Bool
 # Used for subscribing to messages
 def callback(data):
     # Prints to the screen
@@ -18,8 +13,8 @@ def listener():
     rospy.init_node('ir_top_listener', anonymous=True)
 
     # Used for subscribing to 'messages' topic
-    rospy.Subscriber('ir_topL', bool, callback)
-    rospy.Subscriber('ir_topR', bool, callback)
+    rospy.Subscriber('ir_topL', Bool, callback)
+    rospy.Subscriber('ir_topR', Bool, callback)
 
     # Keeps python from exiting until this node is stopped
     rospy.spin()
