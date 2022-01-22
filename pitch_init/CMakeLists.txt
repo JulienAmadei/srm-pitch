@@ -158,7 +158,7 @@ include_directories(
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executable scripts (Python etc.) for installation
-catkin_install_python(PROGRAMS src/init_main
+catkin_install_python(PROGRAMS src/init_main.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 

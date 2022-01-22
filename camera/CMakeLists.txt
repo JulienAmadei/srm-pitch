@@ -134,11 +134,11 @@ catkin_install_python(PROGRAMS
 	src/distance_finder_picture.py
 	src/create_data.py
 	src/webcam_pub_autoadjust.py
-	src/edge.py
 	src/hand_gestures.py
 	src/hand_recognition.py
 	src/rock_paper_scisors.py
 	src/finger_counter.py
+	src/finger_counter_v2.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
