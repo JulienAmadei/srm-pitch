@@ -1,14 +1,14 @@
 <launch>
   <node
     pkg="camera"
-    type="webcam_pub.py"
+    type="webcam_pub_autoadjust.py"
     name="webcam_pub"
     output="screen"
   />
   <node
     pkg="camera"
-    type="distance_finder.py"
-    name="distance_finder"
+    type="webcam_sub.py"
+    name="webcam_sub"
     output="screen"
   />
 </launch>

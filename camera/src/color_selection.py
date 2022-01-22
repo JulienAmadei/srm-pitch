@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-# Description:
-# - Subscribes to real-time streaming video from your built-in webcam.
-#
-# Author:
-# - Addison Sears-Collins
-# - https://automaticaddison.com
  
 # Import the necessary libraries
 import rospy # Python library for ROS
+import cv2 # OpenCV library
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import cv2 # OpenCV library
+
 import numpy as np
 
 def empty(a):
@@ -30,7 +25,6 @@ def color_main(data):
   # Used to convert between ROS and OpenCV images
   br = CvBridge()
   
-
   # Output debugging information to the terminal
   rospy.loginfo("receiving video frame")
   
@@ -51,8 +45,6 @@ def color_main(data):
   result = cv2.bitwise_and(img,img, mask = mask)
 
   cv2.imshow('Result', result)
-
-  
   cv2.waitKey(1)
       
 def ros_main():
@@ -60,7 +52,7 @@ def ros_main():
   # Tells rospy the name of the node.
   # Anonymous = True makes sure the node has a unique name. Random
   # numbers are added to the end of the name. 
-  rospy.init_node('video_sub_py', anonymous=True)
+  rospy.init_node('color_selection_py', anonymous=True)
    
   # Node is subscribing to the video_frames topic
   rospy.Subscriber('video_frames', Image, color_main)

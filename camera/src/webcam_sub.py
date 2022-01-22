@@ -8,9 +8,10 @@
  
 # Import the necessary libraries
 import rospy # Python library for ROS
+import cv2 # OpenCV library
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import cv2 # OpenCV library
+
  
 def callback(data):
  

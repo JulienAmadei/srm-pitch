@@ -7,8 +7,8 @@
   />
   <node
     pkg="camera"
-    type="object_detection.py"
-    name="object_detection"
+    type="object_recognition.py"
+    name="object_recognition"
     output="screen"
   />
 </launch>

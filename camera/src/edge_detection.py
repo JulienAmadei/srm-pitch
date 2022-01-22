@@ -85,7 +85,7 @@ def edge_main(data):
         
 def ros_main():
 
-  rospy.init_node('video_sub_py', anonymous=True)
+  rospy.init_node('edge_detection_py', anonymous=True)
   
   # Node is subscribing to the video_frames topic
   rospy.Subscriber('video_frames', Image, edge_main)

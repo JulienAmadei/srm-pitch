@@ -2,9 +2,9 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
+import cv2
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import cv2
 from cvzone.HandTrackingModule import HandDetector
 
 detector = HandDetector()

@@ -2,9 +2,9 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
+import cv2 # OpenCV library
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import cv2 # OpenCV library
 import numpy as np
 
 
@@ -122,7 +122,7 @@ def ros_main():
   # Tells rospy the name of the node.
   # Anonymous = True makes sure the node has a unique name. Random
   # numbers are added to the end of the name. 
-  rospy.init_node('video_sub_py', anonymous=True)
+  rospy.init_node('rock_paper_scisors_py', anonymous=True)
    
   # Node is subscribing to the video_frames topic
   rospy.Subscriber('video_frames', Image, color_main)

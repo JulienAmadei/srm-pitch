@@ -55,28 +55,11 @@ def face_data(image, cascade):
 	# getting coordinates x, y , width and height
 	for (x, y, h, w) in faces:
 
-		# draw the rectangle on the face
-		cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
 		# getting face width in the pixels
 		face_width = w
 		
 	# return the face width in pixel
 	return face_width
-
-def detect_distance(image, focal_length, known_width, cascade):
-
-    face_width_in_frame = face_data(image,cascade)
-    Distance = (known_width * focal_length)/face_width_in_frame
-    print("Distance " + str(Distance))
-    if (Distance != 'inf'):
-        player_detected = True
-        
-    cv2.waitKey(1)
-
-################
-#Initialisation
-################
 
 def ros_main():
 
@@ -89,15 +72,13 @@ def ros_main():
   
   rate = rospy.Rate(10)
   
-  #reference image  (CHANGER LES PATHS EN FONCTION DE L'ORDI OU DU PITCH 
+  #reference image  (CHANGER LES PATHS EN FONCTION DE L'ORDI OU DU PITCH)
   ref_image = cv2.imread("/home/lucas/catkin_ws/src/camera/src/image_refs/face_dist_ref_1.jpg")
 
-  path = '/home/lucas/catkin_ws/src/camera/src/haarcascade_frontalface_default.xml'
+  path = '/home/lucas/catkin_ws/src/camera/src/haarcascades/haarcascade_frontalface_default.xml'
   
   # LOAD THE CLASSIFIERS DOWNLOADED
   cascade = cv2.CascadeClassifier(path)
-  
-  player_detected = False
   
   # distance from camera to object(face) measured
   Known_distance = 43
@@ -119,14 +100,19 @@ def ros_main():
       
         auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
       
-        distance = detect_distance(auto_result, focal_length_found, known_width, cascade)
+        face_width_in_frame = face_data(auto_result,cascade)
+    
+        if face_width_in_frame == 0 :
+          distance = -1
+        else :    
+          distance = (known_width * focal_length_found)/face_width_in_frame
         
         print(distance)
         
         # Print debugging information to the terminal
         rospy.loginfo('publishing the distance to the player')
         
-        pub_thumb.publish(distance)
+        pub.publish(distance)
              
       # Sleep just enough to maintain the desired rate
       rate.sleep()

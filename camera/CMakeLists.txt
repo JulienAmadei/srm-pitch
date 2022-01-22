@@ -124,24 +124,16 @@ include_directories(
 )
 
 catkin_install_python(PROGRAMS 
-	src/object_detection.py
 	src/color_selection.py
-	src/edge_detection.py
-	src/image_autoadjust.py
+	src/edge_recognition.py
 	src/webcam_pub.py
 	src/webcam_sub.py
-	src/distance_finder.py
-	src/distance_finder_v2.py
-	src/distance_finder_picture.py
-	src/create_data.py
 	src/webcam_pub_autoadjust.py
-	src/hand_gestures.py
-	src/hand_recognition.py
 	src/rock_paper_scisors.py
-	src/finger_counter.py
 	src/finger_counter_visu.py
 	src/finger_counter_sw.py
-	src/find_player.py
+	src/find_player_visu.py
+	src/find_player_sw.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

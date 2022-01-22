@@ -2,9 +2,9 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
+import cv2 # OpenCV library
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import cv2 # OpenCV library
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -40,15 +40,6 @@ def automatic_brightness_and_contrast(image, clip_hist_percent=1):
     # Calculate alpha and beta values
     alpha = 255 / (maximum_gray - minimum_gray)
     beta = -minimum_gray * alpha
-    
-    '''
-    # Calculate new histogram with desired range and show histogram 
-    new_hist = cv2.calcHist([gray],[0],None,[256],[minimum_gray,maximum_gray])
-    plt.plot(hist)
-    plt.plot(new_hist)
-    plt.xlim([0,256])
-    plt.show()
-    '''
 
     auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
     return (auto_result, alpha, beta)
