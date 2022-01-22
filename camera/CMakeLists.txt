@@ -140,6 +140,7 @@ catkin_install_python(PROGRAMS
 	src/finger_counter.py
 	src/finger_counter_visu.py
 	src/finger_counter_sw.py
+	src/find_player.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
