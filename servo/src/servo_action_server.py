@@ -33,7 +33,7 @@ class ServoAction(object):
         
         rospy.loginfo('Executing motion for H')
         print(goal.H)
-        HPulse = goal.H*(1500/90)
+        HPulse = goal.H*(2000/180)+1500
         if(HStep != 0):
             HPulse += HStep
             if(HPulse >= 2500): 
@@ -45,7 +45,7 @@ class ServoAction(object):
     
         rospy.loginfo('Executing motion for V')
         print(goal.V)
-        VPulse = goal.V*(1500/90)
+        VPulse = goal.V*(2000/180)+1500
         if(VStep != 0):
             VPulse += VStep
             if(VPulse >= 2500): 

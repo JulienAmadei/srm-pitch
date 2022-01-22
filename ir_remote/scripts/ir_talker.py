@@ -1,5 +1,3 @@
-## Talker that publishes a message to the remote_input topic.
-
 #!/usr/bin/env python
 
 import rospy
