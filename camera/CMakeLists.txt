@@ -138,7 +138,8 @@ catkin_install_python(PROGRAMS
 	src/hand_recognition.py
 	src/rock_paper_scisors.py
 	src/finger_counter.py
-	src/finger_counter_v2.py
+	src/finger_counter_visu.py
+	src/finger_counter_sw.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

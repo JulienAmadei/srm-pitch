@@ -7,7 +7,7 @@ from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Image
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 
-detector = HandDetector(detectionCon=0.5, maxHands=1)
+detector = HandDetector()
 
 def hand_main(data):
 
@@ -22,10 +22,19 @@ def hand_main(data):
         bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
         centerPoint1 = hand1['center']  # center of the hand cx,cy
         handType1 = hand1["type"]  # Handtype Left or Right
+        
+        thumb_edge = lmList1[4]
+        
+        if thumb_edge[1] > centerPoint1[1] :
+            thumb_state = "thumb down"
+        elif thumb_edge[1] < centerPoint1[1] :
+            thumb_state = "thumb up"
 
         fingers1 = detector.fingersUp(hand1)
         totalFingers = fingers1.count(1)
         cv2.putText(img, f'Fingers:{totalFingers}', (bbox1[0] + 200, bbox1[1] - 30),
+                    cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+        cv2.putText(img,f'{thumb_state}', (30, 30),
                     cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
     
     # Display
