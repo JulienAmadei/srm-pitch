@@ -65,7 +65,7 @@ def finger_detection(detector,img):
         totalFingers = fingers.count(1)
         
     return totalFingers, thumb_state
-
+    
 def ros_main():
 
   rospy.init_node('finger_counter_sw_py', anonymous=True)
