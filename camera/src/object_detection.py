@@ -6,8 +6,8 @@ from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Image
 import cv2
 
 ################################################################
-path = '/home/lucas/catkin_ws/src/camera/src/haarcascades/haarcascade_frontalface_default.xml'  # PATH OF THE CASCADE
-objectName = 'face'       # OBJECT NAME TO DISPLAY
+path = '/home/lucas/catkin_ws/src/camera/src/haarcascades/hand.xml'  # PATH OF THE CASCADE
+objectName = 'hand'       # OBJECT NAME TO DISPLAY
 color= (255,0,255)
 frameWidth = 640
 frameHeight = 480

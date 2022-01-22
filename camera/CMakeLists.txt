@@ -135,7 +135,10 @@ catkin_install_python(PROGRAMS
 	src/create_data.py
 	src/webcam_pub_autoadjust.py
 	src/edge.py
-	src/mainGestures.py
+	src/hand_gestures.py
+	src/hand_recognition.py
+	src/rock_paper_scisors.py
+	src/finger_counter.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

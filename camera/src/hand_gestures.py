@@ -7,47 +7,6 @@ import cv2
 import math
 global ser
 
-def empty(a):
-    pass
-
-def initializeTrackBar():
-    cv2.namedWindow("HSV Value")
-    cv2.resizeWindow("HSV Value", 640, 240)
-    cv2.createTrackbar("HUE MIN", "HSV Value", 0, 179, empty)
-    cv2.createTrackbar("HUE MAX", "HSV Value", 26, 179, empty)
-    cv2.createTrackbar("SAT MIN", "HSV Value", 50, 255, empty)
-    cv2.createTrackbar("SAT MAX", "HSV Value", 255, 255, empty)
-    cv2.createTrackbar("VALUE MIN", "HSV Value", 0, 255, empty)
-    cv2.createTrackbar("VALUE MAX", "HSV Value", 255, 255, empty)
-
-def getTrackbarValues():
-    h_min = cv2.getTrackbarPos("HUE MIN", "HSV Value")
-    h_max = cv2.getTrackbarPos("HUE MAX", "HSV Value")
-    s_min = cv2.getTrackbarPos("SAT MIN", "HSV Value")
-    s_max = cv2.getTrackbarPos("SAT MAX", "HSV Value")
-    v_min = cv2.getTrackbarPos("VALUE MIN", "HSV Value")
-    v_max = cv2.getTrackbarPos("VALUE MAX", "HSV Value")
-    vals = h_min,s_min,v_min,h_max,s_max,v_max
-    return vals
-
-
-def connectToRobot(portNo):
-    global ser
-    try:
-        ser = serial.Serial(portNo, 9600)
-        print("Robot Connected ")
-    except:
-        print("Not Connected To Robot ")
-        pass
-
-def colorFilter(img, vals):
-    lower_blue = np.array([vals[0],vals[1], vals[2]])
-    upper_blue = np.array([vals[3], vals[4], vals[5]])
-    mask = cv2.inRange(img, lower_blue, upper_blue)
-    imgColorFilter = cv2.bitwise_and(img, img, mask=mask)
-    ret, imgMask = cv2.threshold(mask, 127, 255, 0)
-    return imgMask,imgColorFilter
-
 
 def sendData(fingers):
 
@@ -151,60 +110,5 @@ brightnessImage = 230
 
 ##############################################################################
 
-utlis.initializeTrackBar()
-utlis.connectToRobot(portNo)
-
-def hand_main():
-
-    br = CvBridge()
-    rospy.loginfo("receiving video frame")
-    img = br.imgmsg_to_cv2(data)
-    imgResult = img.copy()
-
-    imgBlur = cv2.GaussianBlur(img, (7, 7), 1)
-    imgHSV = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2HSV)
-    trackBarPos = utlis.getTrackbarValues()
-    imgMask, imgColorFilter = utlis.colorFilter(imgHSV,trackBarPos)
-
-    imgCropped = imgMask[cropVals[1]:cropVals[2]+cropVals[1],cropVals[0]:cropVals[0]+cropVals[3]]
-    imgResult = imgResult[cropVals[1]:cropVals[2] + cropVals[1], cropVals[0]:cropVals[0] + cropVals[3]]
-    imgOpen =cv2.morphologyEx(imgCropped, cv2.MORPH_OPEN,np.ones((5,5),np.uint8))
-    imgClosed = cv2.morphologyEx(imgOpen, cv2.MORPH_CLOSE, np.ones((10, 10), np.uint8))
-    imgFilter = cv2.bilateralFilter(imgClosed, 5, 75, 75)
-    imgContour,imgResult = utlis.getContours(imgFilter,imgResult)
-
-    ## TO DISPLAY
-    cv2.rectangle(img, (cropVals[0], cropVals[1]), (cropVals[0]+cropVals[3], cropVals[2]+cropVals[1]), (0, 255, 0), 2)
-    stackedImage = utlis.stackImages(0.7,([img,imgMask,imgColorFilter],[imgCropped,imgContour,imgResult]))
 
 
-
-    #imgBlank = np.zeros((512, 512, 3), np.uint8)
-    #stackedImage = utlis.stackImages(0.7, ([img, imgBlank, imgBlank], [imgBlank, imgBlank, imgBlank]))
-
-    cv2.imshow('Stacked Images', stackedImage)
-
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-def ros_main():
- 
-  # Tells rospy the name of the node.
-  # Anonymous = True makes sure the node has a unique name. Random
-  # numbers are added to the end of the name. 
-  rospy.init_node('video_sub_py', anonymous=True)
-   
-  # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, hand_main)
- 
-  # spin() simply keeps python from exiting until this node is stopped
-  rospy.spin()
-  
-  cap.release()
-  
-  # Close down the video stream when done
-  cv2.destroyAllWindows()
-  
-if __name__ == '__main__':
-  ros_main()

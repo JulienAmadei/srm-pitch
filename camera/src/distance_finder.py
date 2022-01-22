@@ -18,10 +18,6 @@ def empty(a):
 
 # CREATE TRACKBAR
 cv2.namedWindow("Result")
-cv2.resizeWindow("Result",frameWidth,frameHeight+100)
-cv2.createTrackbar("Scale","Result",200,1000,empty)
-cv2.createTrackbar("Neig","Result",8,50,empty)
-cv2.createTrackbar("Min Area","Result",3000,100000,empty)
 
 # LOAD THE CLASSIFIERS DOWNLOADED
 cascade = cv2.CascadeClassifier(path)

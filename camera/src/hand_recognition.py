@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-# Description:
-# - Subscribes to real-time streaming video from your built-in webcam.
-#
-# Author:
-# - Addison Sears-Collins
-# - https://automaticaddison.com
- 
+
 # Import the necessary libraries
 import rospy # Python library for ROS
 from sensor_msgs.msg import Image # Image is the message type
@@ -13,45 +7,32 @@ from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Image
 import cv2 # OpenCV library
 import numpy as np
 
-def empty(a):
-    pass
 
-cv2.namedWindow("HSV")
-cv2.resizeWindow("HSV",640,240)
-cv2.createTrackbar("HUE Min","HSV",0,179,empty)
-cv2.createTrackbar("HUE Max","HSV",179,179,empty)
-cv2.createTrackbar("SAT Min","HSV",0,255,empty)
-cv2.createTrackbar("SAT Max","HSV",255,255,empty)
-cv2.createTrackbar("VALUE Min","HSV",0,255,empty)
-cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
-    
+cv2.namedWindow('Result')
+
 def color_main(data):
  
   # Used to convert between ROS and OpenCV images
   br = CvBridge()
   
-
   # Output debugging information to the terminal
   rospy.loginfo("receiving video frame")
   
   # Convert ROS Image message to OpenCV image
   img = br.imgmsg_to_cv2(data)
   imgHsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-  h_min = cv2.getTrackbarPos("HUE Min","HSV")
-  h_max = cv2.getTrackbarPos("HUE Max", "HSV")
-  s_min = cv2.getTrackbarPos("SAT Min", "HSV")
-  s_max = cv2.getTrackbarPos("SAT Max", "HSV")
-  v_min = cv2.getTrackbarPos("VALUE Min", "HSV")
-  v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
-  print(h_min)
+  h_min = 0
+  h_max = 20
+  s_min = 50
+  s_max = 160
+  v_min = 100
+  v_max = 255
 
   lower = np.array([h_min,s_min,v_min])
   upper = np.array([h_max,s_max,v_max])
   mask = cv2.inRange(imgHsv,lower,upper)
   result = cv2.bitwise_and(img,img, mask = mask)
-
   cv2.imshow('Result', result)
-
   
   cv2.waitKey(1)
       
