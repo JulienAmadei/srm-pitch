@@ -28,7 +28,7 @@ def servo_client():
     client.cancel_goal()
     time.sleep(2)
     
-    goal = servo.msg.ServoGoal(H=-10,V=-5)
+    goal = servo.msg.ServoGoal(H=-10,V=-50)
     client.send_goal(goal)
     print(f'Goal sent (H:{goal.H}, V:{goal.V})')
     time.sleep(5)
