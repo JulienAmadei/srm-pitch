@@ -23,9 +23,9 @@ def blink(req):
     B = RGB[2]
     arg = str(tf)+" "+str(R)+" "+str(G)+" "+str(B)
     if req.mode == 0:
-        os.system("sudo python3 ~/test_ws/src/led/srv/blink_led_exe.py "+arg)
+        os.system("sudo python3 ~/pitch_ws/src/srm-pitch/led/srv/blink_led_exe.py "+arg)
     elif req.mode == 1:
-        os.system("sudo python3 ~/test_ws/src/led/srv/quarter_led_exe.py "+arg)
+        os.system("sudo python3 ~/pitch_ws/src/srm-pitch/led/srv/quarter_led_exe.py "+arg)
     time.sleep(tf)
 
     return True
