@@ -5,53 +5,43 @@ from std_msgs.msg import Int16 # Image is the message type
 import cv2
 
 ################################################################
-path = '/home/ubuntu/test_ws/src/camera/src/haarcascades/haarcascade_frontalface_default.xml'  
-# PATH OF THE CASCADE
-objectName = 'face'       # OBJECT NAME TO DISPLAY
-frameWidth = 640
-frameHeight = 480
 
-# Colors
-GREEN = (0, 255, 0)
-RED = (0, 0, 255)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-#################################################################
+def automatic_brightness_and_contrast(image, clip_hist_percent=1):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Calculate grayscale histogram
+    hist = cv2.calcHist([gray],[0],None,[256],[0,256])
+    hist_size = len(hist)
+    
+    # Calculate cumulative distribution from the histogram
+    accumulator = []
+    accumulator.append(float(hist[0]))
+    for index in range(1, hist_size):
+        accumulator.append(accumulator[index -1] + float(hist[index]))
+    
+    # Locate points to clip
+    maximum = accumulator[-1]
+    clip_hist_percent *= (maximum/100.0)
+    clip_hist_percent /= 2.0
+    
+    # Locate left cut
+    minimum_gray = 0
+    while accumulator[minimum_gray] < clip_hist_percent:
+        minimum_gray += 1
+    
+    # Locate right cut
+    maximum_gray = hist_size -1
+    while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
+        maximum_gray -= 1
+    
+    # Calculate alpha and beta values
+    alpha = 255 / (maximum_gray - minimum_gray)
+    beta = -minimum_gray * alpha
 
-cv2.namedWindow("Result")
-cv2.resizeWindow("Result",frameWidth,frameHeight+100)
+    auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+    return (auto_result, alpha, beta)
 
-# LOAD THE CLASSIFIERS DOWNLOADED
-cascade = cv2.CascadeClassifier(path)
-
-# distance from camera to object(face) measured
-# centimeter
-Known_distance = 43
-
-# width of face in the real world or Object Plane
-# centimeter
-Known_width = 14
-
-# defining the fonts
-fonts = cv2.FONT_HERSHEY_COMPLEX
-
-# focal length finder function
-def Focal_Length_Finder(measured_distance, real_width, width_in_rf_image):
-
-	# finding the focal length
-	focal_length = (width_in_rf_image * measured_distance) / real_width
-	return focal_length
-
-# distance estimation function
-def Distance_finder(Focal_Length, real_face_width, face_width_in_frame):
-	
-	distance = (real_face_width * Focal_Length)/face_width_in_frame
-
-	# return the distance
-	return distance
-
-
-def face_data(image):
+def face_data(image, cascade):
 
 	face_width = 0 # making face width to zero
 
@@ -66,7 +56,7 @@ def face_data(image):
 	for (x, y, h, w) in faces:
 
 		# draw the rectangle on the face
-		cv2.rectangle(image, (x, y), (x+w, y+h), GREEN, 2)
+		cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
 		# getting face width in the pixels
 		face_width = w
@@ -74,57 +64,75 @@ def face_data(image):
 	# return the face width in pixel
 	return face_width
 
-def detect_distance(data):
-    
-    br = CvBridge()
-    rospy.loginfo("receiving video frame")
-    current_frame = br.imgmsg_to_cv2(data)
-    face_width_in_frame = face_data(current_frame)
-    Distance = Distance_finder(Focal_length_found, Known_width, face_width_in_frame)
-    print("Distance" + str(Distance))
+def detect_distance(image, focal_length, known_width, cascade):
+
+    face_width_in_frame = face_data(image,cascade)
+    Distance = (known_width * focal_length)/face_width_in_frame
+    print("Distance " + str(Distance))
     if (Distance != 'inf'):
         player_detected = True
-
+        
+    cv2.waitKey(1)
 
 ################
 #Initialisation
-################7
+################
 
-# reading reference_image from directory
-ref_image = cv2.imread("/home/ubuntu/test_ws/src/camera/src/image_refs/face_dist_ref_1.jpg")
-
-# find the face width(pixels) in the reference_image
-ref_image_face_width = face_data(ref_image)
-
-# get the focal by calling "Focal_Length_Finder"
-# face width in reference(pixels),
-# Known_distance(centimeters),
-# known_width(centimeters)
-Focal_length_found = Focal_Length_Finder(
-	Known_distance, Known_width, ref_image_face_width)
-
-player_detected = False
-         
 def ros_main():
- 
-  # Tells rospy the name of the node.
-  # Anonymous = True makes sure the node has a unique name. Random
-  # numbers are added to the end of the name. 
-  rospy.init_node('find_player_py', anonymous=True)
+
+  rospy.init_node('find_player_sw_py', anonymous=True)
   
-  # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, detect_distance)
+  pub = rospy.Publisher('distance_to_player', Int16, queue_size=10)
   
-  pub = rospy.Publisher('is_player', Image, queue_size=10)
+  #initialise the camera
+  cap = cv2.VideoCapture(0)
   
-  rospy.loginfo('publishing flag for player ')
+  rate = rospy.Rate(10)
   
-  pub.publish(player_detected)
- 
-  # spin() simply keeps python from exiting until this node is stopped
-  rospy.spin()
+  #reference image  (CHANGER LES PATHS EN FONCTION DE L'ORDI OU DU PITCH 
+  ref_image = cv2.imread("/home/lucas/catkin_ws/src/camera/src/image_refs/face_dist_ref_1.jpg")
+
+  path = '/home/lucas/catkin_ws/src/camera/src/haarcascade_frontalface_default.xml'
+  
+  # LOAD THE CLASSIFIERS DOWNLOADED
+  cascade = cv2.CascadeClassifier(path)
+  
+  player_detected = False
+  
+  # distance from camera to object(face) measured
+  Known_distance = 43
+
+  # width of face in the real world or Object Plane
+  known_width = 14
+  
+  # find the face width(pixels) in the reference_image
+  ref_image_face_width = face_data(ref_image, cascade)
+  
+  # get the focal
+  focal_length_found = (ref_image_face_width * Known_distance) / known_width
+  
+  while not rospy.is_shutdown():
+     
+      ret, frame = cap.read()
+         
+      if ret == True:
+      
+        auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+      
+        distance = detect_distance(auto_result, focal_length_found, known_width, cascade)
+        
+        print(distance)
+        
+        # Print debugging information to the terminal
+        rospy.loginfo('publishing the distance to the player')
+        
+        pub_thumb.publish(distance)
+             
+      # Sleep just enough to maintain the desired rate
+      rate.sleep()
  
   # Close down the video stream when done
+  cap.release()
   cv2.destroyAllWindows()
   
 if __name__ == '__main__':

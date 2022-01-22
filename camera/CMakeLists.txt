@@ -131,6 +131,7 @@ catkin_install_python(PROGRAMS
 	src/webcam_pub.py
 	src/webcam_sub.py
 	src/distance_finder.py
+	src/distance_finder_v2.py
 	src/distance_finder_picture.py
 	src/create_data.py
 	src/webcam_pub_autoadjust.py
