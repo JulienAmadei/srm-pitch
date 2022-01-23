@@ -125,7 +125,7 @@ include_directories(
 
 catkin_install_python(PROGRAMS 
 	src/color_selection.py
-	src/edge_recognition.py
+	src/edge_detection.py
 	src/webcam_pub.py
 	src/webcam_sub.py
 	src/webcam_pub_autoadjust.py

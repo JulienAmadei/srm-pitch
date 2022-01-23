@@ -6,7 +6,7 @@
 # To write a ROS Node
 import rospy
 # Use the "string" type
-from std_msgs.msg import bool 
+from std_msgs.msg import Bool 
 
 # Used for subscribing to messages
 def callback(data):
@@ -18,7 +18,7 @@ def listener():
     rospy.init_node('ir_line_sensor_listener', anonymous=True)
 
     # Used for subscribing to 'messages' topic
-    rospy.Subscriber('ir_line_sensor', bool, callback)
+    rospy.Subscriber('ir_line_sensor', Bool, callback)
 
     # Keeps python from exiting until this node is stopped
     rospy.spin()
