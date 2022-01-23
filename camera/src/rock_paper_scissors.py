@@ -2,39 +2,51 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
-import cv2 # OpenCV library
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
+import cv2
 import numpy as np
+import math
 
+##############################################################################
 
-cv2.namedWindow('Result')
+cropVals = 100,100,300,400 # StartPointY StartPointX h w
 
-def color_main(data):
- 
-    # Used to convert between ROS and OpenCV images
-    br = CvBridge()
-    
-    # Output debugging information to the terminal
-    rospy.loginfo("receiving video frame")
-    
-    # Convert ROS Image message to OpenCV image
-    img = br.imgmsg_to_cv2(data)
-    imgHsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+##############################################################################
+
+def mask_values():
     h_min = 0
-    h_max = 20
+    h_max = 26
     s_min = 50
     s_max = 160
-    v_min = 100
+    v_min = 30
     v_max = 255
-    
-    lower = np.array([h_min,s_min,v_min])
-    upper = np.array([h_max,s_max,v_max])
-    mask = cv2.inRange(imgHsv,lower,upper)
-    result = cv2.bitwise_and(img,img, mask = mask)
-    edges = cv2.findContours(result,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-  
-    imgCon = cv2.cvtColor(imgHsv,cv2.COLOR_HSV2BGR)
+    vals = h_min,s_min,v_min,h_max,s_max,v_max
+    return vals
+
+
+def colorFilter(img, vals):
+    lower_blue = np.array([vals[0],vals[1], vals[2]])
+    upper_blue = np.array([vals[3], vals[4], vals[5]])
+    mask = cv2.inRange(img, lower_blue, upper_blue)
+    imgColorFilter = cv2.bitwise_and(img, img, mask=mask)
+    ret, imgMask = cv2.threshold(mask, 127, 255, 0)
+    return imgMask,imgColorFilter
+
+
+def sendData(fingers):
+
+    string = "$"+str(int(fingers[0]))+str(int(fingers[1]))+str(int(fingers[2]))+str(int(fingers[3]))+str(int(fingers[4]))
+    try:
+       ser.write(string.encode())
+       print(string)
+    except:
+        pass
+
+def getContours(imgCon,imgMatch):
+
+    contours, hierarchy = cv2.findContours(imgCon, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    imgCon = cv2.cvtColor(imgCon,cv2.COLOR_GRAY2BGR)
     bigCon = 0
     myCounter=0
     myPos = np.zeros(4)
@@ -80,22 +92,48 @@ def color_main(data):
                     sendData([0, 0, 0, 1, 0]);FingerCount="One"
                 else: sendData([0, 0, 0, 0, 0]);FingerCount="Zero"
             cv2.putText(imgMatch,FingerCount,(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
-    cv2.imshow(imgCon)
-    cv2.imshow(imgMatch)
-    
-    cv2.waitKey(1)
-  
-def hand_main():
+    return imgCon,imgMatch
 
+def stackImages(scale,imgArray):
+    rows = len(imgArray)
+    cols = len(imgArray[0])
+    rowsAvailable = isinstance(imgArray[0], list)
+    width = imgArray[0][0].shape[1]
+    height = imgArray[0][0].shape[0]
+    if rowsAvailable:
+        for x in range ( 0, rows):
+            for y in range(0, cols):
+                if imgArray[x][y].shape[:2] == imgArray[0][0].shape [:2]:
+                    imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)
+                else:
+                    imgArray[x][y] = cv2.resize(imgArray[x][y], (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale, scale)
+                if len(imgArray[x][y].shape) == 2: imgArray[x][y]= cv2.cvtColor( imgArray[x][y], cv2.COLOR_GRAY2BGR)
+        imageBlank = np.zeros((height, width, 3), np.uint8)
+        hor = [imageBlank]*rows
+        hor_con = [imageBlank]*rows
+        for x in range(0, rows):
+            hor[x] = np.hstack(imgArray[x])
+        ver = np.vstack(hor)
+    else:
+        for x in range(0, rows):
+            if imgArray[x].shape[:2] == imgArray[0].shape[:2]:
+                imgArray[x] = cv2.resize(imgArray[x], (0, 0), None, scale, scale)
+            else:
+                imgArray[x] = cv2.resize(imgArray[x], (imgArray[0].shape[1], imgArray[0].shape[0]), None,scale, scale)
+            if len(imgArray[x].shape) == 2: imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
+        hor= np.hstack(imgArray)
+        ver = hor
+    return ver
+
+def hand_main(data):
     br = CvBridge()
-    rospy.loginfo("receiving video frame")
     img = br.imgmsg_to_cv2(data)
     imgResult = img.copy()
 
     imgBlur = cv2.GaussianBlur(img, (7, 7), 1)
     imgHSV = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2HSV)
-    trackBarPos = getTrackbarValues()
-    imgMask, imgColorFilter = colorFilter(imgHSV,trackBarPos)
+    mask = mask_values()
+    imgMask, imgColorFilter = colorFilter(imgHSV,mask)
 
     imgCropped = imgMask[cropVals[1]:cropVals[2]+cropVals[1],cropVals[0]:cropVals[0]+cropVals[3]]
     imgResult = imgResult[cropVals[1]:cropVals[2] + cropVals[1], cropVals[0]:cropVals[0] + cropVals[3]]
@@ -115,17 +153,20 @@ def hand_main():
 
     cv2.imshow('Stacked Images', stackedImage)
 
+
     cv2.waitKey(1)
-      
+
+
+
 def ros_main():
  
   # Tells rospy the name of the node.
   # Anonymous = True makes sure the node has a unique name. Random
   # numbers are added to the end of the name. 
-  rospy.init_node('rock_paper_scisors_py', anonymous=True)
+  rospy.init_node('rock_paper_scissors_py', anonymous=True)
    
   # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, color_main)
+  rospy.Subscriber('video_frames', Image, hand_main)
  
   # spin() simply keeps python from exiting until this node is stopped
   rospy.spin()
