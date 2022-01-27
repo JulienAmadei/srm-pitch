@@ -2,39 +2,79 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
-import cv2 # OpenCV library
-from sensor_msgs.msg import Image # Image is the message type
-from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
+import cv2
 import numpy as np
+import math
+from std_msgs.msg import Int16 # Image is the message type
 
-
-cv2.namedWindow('Result')
-
-def color_main(data):
- 
-    # Used to convert between ROS and OpenCV images
-    br = CvBridge()
+def automatic_brightness_and_contrast(image, clip_hist_percent=1):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    # Output debugging information to the terminal
-    rospy.loginfo("receiving video frame")
+    # Calculate grayscale histogram
+    hist = cv2.calcHist([gray],[0],None,[256],[0,256])
+    hist_size = len(hist)
     
-    # Convert ROS Image message to OpenCV image
-    img = br.imgmsg_to_cv2(data)
-    imgHsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    # Calculate cumulative distribution from the histogram
+    accumulator = []
+    accumulator.append(float(hist[0]))
+    for index in range(1, hist_size):
+        accumulator.append(accumulator[index -1] + float(hist[index]))
+    
+    # Locate points to clip
+    maximum = accumulator[-1]
+    clip_hist_percent *= (maximum/100.0)
+    clip_hist_percent /= 2.0
+    
+    # Locate left cut
+    minimum_gray = 0
+    while accumulator[minimum_gray] < clip_hist_percent:
+        minimum_gray += 1
+    
+    # Locate right cut
+    maximum_gray = hist_size -1
+    while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
+        maximum_gray -= 1
+    
+    # Calculate alpha and beta values
+    alpha = 255 / (maximum_gray - minimum_gray)
+    beta = -minimum_gray * alpha
+
+    auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+    return (auto_result, alpha, beta)
+
+def mask_values():
     h_min = 0
-    h_max = 20
+    h_max = 26
     s_min = 50
     s_max = 160
-    v_min = 100
+    v_min = 30
     v_max = 255
-    
-    lower = np.array([h_min,s_min,v_min])
-    upper = np.array([h_max,s_max,v_max])
-    mask = cv2.inRange(imgHsv,lower,upper)
-    result = cv2.bitwise_and(img,img, mask = mask)
-    edges = cv2.findContours(result,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-  
-    imgCon = cv2.cvtColor(imgHsv,cv2.COLOR_HSV2BGR)
+    vals = h_min,s_min,v_min,h_max,s_max,v_max
+    return vals
+
+
+def colorFilter(img, vals):
+    lower_blue = np.array([vals[0],vals[1], vals[2]])
+    upper_blue = np.array([vals[3], vals[4], vals[5]])
+    mask = cv2.inRange(img, lower_blue, upper_blue)
+    imgColorFilter = cv2.bitwise_and(img, img, mask=mask)
+    ret, imgMask = cv2.threshold(mask, 127, 255, 0)
+    return imgMask,imgColorFilter
+
+
+def sendData(fingers):
+
+    string = "$"+str(int(fingers[0]))+str(int(fingers[1]))+str(int(fingers[2]))+str(int(fingers[3]))+str(int(fingers[4]))
+    try:
+       ser.write(string.encode())
+       print(string)
+    except:
+        pass
+
+def getContours(imgCon,imgMatch):
+
+    contours, hierarchy = cv2.findContours(imgCon, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    imgCon = cv2.cvtColor(imgCon,cv2.COLOR_GRAY2BGR)
     bigCon = 0
     myCounter=0
     myPos = np.zeros(4)
@@ -80,57 +120,52 @@ def color_main(data):
                     sendData([0, 0, 0, 1, 0]);FingerCount="One"
                 else: sendData([0, 0, 0, 0, 0]);FingerCount="Zero"
             cv2.putText(imgMatch,FingerCount,(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
-    cv2.imshow(imgCon)
-    cv2.imshow(imgMatch)
-    
-    cv2.waitKey(1)
-  
-def hand_main():
+    return imgCon,imgMatch
 
-    br = CvBridge()
-    rospy.loginfo("receiving video frame")
-    img = br.imgmsg_to_cv2(data)
+def hand_main(img):
     imgResult = img.copy()
 
     imgBlur = cv2.GaussianBlur(img, (7, 7), 1)
     imgHSV = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2HSV)
-    trackBarPos = getTrackbarValues()
-    imgMask, imgColorFilter = colorFilter(imgHSV,trackBarPos)
-
-    imgCropped = imgMask[cropVals[1]:cropVals[2]+cropVals[1],cropVals[0]:cropVals[0]+cropVals[3]]
-    imgResult = imgResult[cropVals[1]:cropVals[2] + cropVals[1], cropVals[0]:cropVals[0] + cropVals[3]]
-    imgOpen =cv2.morphologyEx(imgCropped, cv2.MORPH_OPEN,np.ones((5,5),np.uint8))
+    mask = mask_values()
+    
+    imgMask, imgColorFilter = colorFilter(imgHSV,mask)
+    imgOpen =cv2.morphologyEx(imgMask, cv2.MORPH_OPEN,np.ones((5,5),np.uint8))
     imgClosed = cv2.morphologyEx(imgOpen, cv2.MORPH_CLOSE, np.ones((10, 10), np.uint8))
     imgFilter = cv2.bilateralFilter(imgClosed, 5, 75, 75)
     imgContour,imgResult = getContours(imgFilter,imgResult)
 
     ## TO DISPLAY
-    cv2.rectangle(img, (cropVals[0], cropVals[1]), (cropVals[0]+cropVals[3], cropVals[2]+cropVals[1]), (0, 255, 0), 2)
-    stackedImage = stackImages(0.7,([img,imgMask,imgColorFilter],[imgCropped,imgContour,imgResult]))
-
-
-
-    #imgBlank = np.zeros((512, 512, 3), np.uint8)
-    #stackedImage = stackImages(0.7, ([img, imgBlank, imgBlank], [imgBlank, imgBlank, imgBlank]))
-
-    cv2.imshow('Stacked Images', stackedImage)
-
+    cv2.imshow("Result",imgResult)
     cv2.waitKey(1)
-      
+
 def ros_main():
- 
-  # Tells rospy the name of the node.
-  # Anonymous = True makes sure the node has a unique name. Random
-  # numbers are added to the end of the name. 
-  rospy.init_node('rock_paper_scisors_py', anonymous=True)
-   
-  # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, color_main)
- 
-  # spin() simply keeps python from exiting until this node is stopped
-  rospy.spin()
+
+  rospy.init_node('hand_tracking_py', anonymous=True)
+
+  #initialise the camera
+  cap = cv2.VideoCapture(0)
+  
+  rate = rospy.Rate(10)
+  
+  while not rospy.is_shutdown():
+     
+      ret, frame = cap.read()
+         
+      if ret == True:
+      
+        auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+      
+        hand_main(auto_result)
+        
+        # Print debugging information to the terminal
+        rospy.loginfo('publishing the number of fingers')
+             
+      # Sleep just enough to maintain the desired rate
+      rate.sleep()
  
   # Close down the video stream when done
+  cap.release()
   cv2.destroyAllWindows()
   
 if __name__ == '__main__':

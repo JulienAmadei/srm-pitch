@@ -59,6 +59,8 @@ def hand_main(detector,img):
             thumb_state = "thumb down"
         elif thumb_edge[1] < centerPoint1[1] :
             thumb_state = "thumb up"
+        else :
+            thumb_state = "error"
 
         fingers1 = detector.fingersUp(hand1)
         totalFingers = fingers1.count(1)
