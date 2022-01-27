@@ -9,11 +9,10 @@ project(camera)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
-  image_transport
-  roscpp
   rospy
   sensor_msgs
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -57,11 +56,13 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  CameraSwitch.srv
+  ColorRecognitionService.srv
+  FindPlayerService.srv
+  FingerCounterService.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -71,10 +72,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -125,6 +126,7 @@ include_directories(
 
 catkin_install_python(PROGRAMS 
 	src/color_selection.py
+	src/color_selection_server.py
 	src/edge_detection.py
 	src/webcam_pub.py
 	src/webcam_sub.py
@@ -133,9 +135,12 @@ catkin_install_python(PROGRAMS
 	src/rock_paper_scissors_view_v2.py
 	src/finger_counter_view.py
 	src/finger_counter_sw.py
+	src/finger_counter_server.py
 	src/find_player_view.py
 	src/find_player_sw.py
+	src/find_player_server.py
 	src/object_recognition.py
+	src/camera_switch.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

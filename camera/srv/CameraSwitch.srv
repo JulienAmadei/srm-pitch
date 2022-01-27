@@ -1,0 +1,5 @@
+string object
+---
+int16 nb_finger
+int16 thumb_pos
+int16 distance

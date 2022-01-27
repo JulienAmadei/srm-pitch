@@ -1,0 +1,3 @@
+---
+int16 nb_finger
+int16 thumb_state
