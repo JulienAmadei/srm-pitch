@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from buzzer.srv import *
 PKG = 'buzzer'

@@ -51,7 +51,7 @@ def getkey():
 def talker():
     pub = rospy.Publisher('remote_input', String, queue_size = 10) 
     rospy.init_node('remote_talker', anonymous=True)
-    rate = rospy.Rate(500) # 500hz
+    rate = rospy.Rate(1000) # 500hz
     while not rospy.is_shutdown():
         try:
             key = getkey()            
