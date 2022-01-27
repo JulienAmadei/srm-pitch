@@ -1,3 +1,5 @@
+## Talker that publishes a message to the remote_input topic.
+
 #!/usr/bin/env python
 
 import rospy
@@ -51,7 +53,7 @@ def getkey():
 def talker():
     pub = rospy.Publisher('remote_input', String, queue_size = 10) 
     rospy.init_node('remote_talker', anonymous=True)
-    rate = rospy.Rate(1000) # 500hz
+    rate = rospy.Rate(500) # 500hz
     while not rospy.is_shutdown():
         try:
             key = getkey()            
@@ -117,19 +119,22 @@ def talker():
             if key == None:
                 msg = msg
 
+            if key != None:
+                # Prints the messages to screen, write them to the Node's log file, and write them to rosout.
+                rospy.loginfo(msg)
+                # Publishes a string to our messages topic
+                pub.publish(msg)
+                       
+		#if key != None:
+		
+		    # time.sleep(1)
+		
+		# Sleeps just long enough to maintain the desired rate through the loop. 
+            rate.sleep()
         except KeyboardInterrupt:
             GPIO.cleanup()
-        # Prints the messages to screen, write them to the Node's log file, and write them to rosout.
-        rospy.loginfo(msg)
-        # Publishes a string to our messages topic
-        pub.publish(msg)
-        
-        #if key != None:
-        
-            # time.sleep(1)
-        
-        # Sleeps just long enough to maintain the desired rate through the loop. 
-        rate.sleep()
+            
+	
 
 # To execute when invoked directly 
 if __name__ == '__main__':
@@ -139,3 +144,4 @@ if __name__ == '__main__':
         talker()
     except rospy.ROSInterruptException:
         pass
+
