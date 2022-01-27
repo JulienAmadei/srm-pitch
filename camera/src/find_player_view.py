@@ -117,6 +117,7 @@ def ros_main():
         print("Distance " + str(distance))
         
         cv2.imshow('',frame)
+        cv2.waitKey(1)
         
         # Print debugging information to the terminal
         rospy.loginfo('publishing the distance to the player')

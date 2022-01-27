@@ -2,17 +2,45 @@
 
 # Import the necessary libraries
 import rospy # Python library for ROS
-from sensor_msgs.msg import Image # Image is the message type
-from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
 import cv2
 import numpy as np
 import math
+from std_msgs.msg import Int16 # Image is the message type
 
-##############################################################################
+def automatic_brightness_and_contrast(image, clip_hist_percent=1):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Calculate grayscale histogram
+    hist = cv2.calcHist([gray],[0],None,[256],[0,256])
+    hist_size = len(hist)
+    
+    # Calculate cumulative distribution from the histogram
+    accumulator = []
+    accumulator.append(float(hist[0]))
+    for index in range(1, hist_size):
+        accumulator.append(accumulator[index -1] + float(hist[index]))
+    
+    # Locate points to clip
+    maximum = accumulator[-1]
+    clip_hist_percent *= (maximum/100.0)
+    clip_hist_percent /= 2.0
+    
+    # Locate left cut
+    minimum_gray = 0
+    while accumulator[minimum_gray] < clip_hist_percent:
+        minimum_gray += 1
+    
+    # Locate right cut
+    maximum_gray = hist_size -1
+    while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
+        maximum_gray -= 1
+    
+    # Calculate alpha and beta values
+    alpha = 255 / (maximum_gray - minimum_gray)
+    beta = -minimum_gray * alpha
 
-cropVals = 100,100,300,400 # StartPointY StartPointX h w
-
-##############################################################################
+    auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+    return (auto_result, alpha, beta)
 
 def mask_values():
     h_min = 0
@@ -94,84 +122,50 @@ def getContours(imgCon,imgMatch):
             cv2.putText(imgMatch,FingerCount,(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
     return imgCon,imgMatch
 
-def stackImages(scale,imgArray):
-    rows = len(imgArray)
-    cols = len(imgArray[0])
-    rowsAvailable = isinstance(imgArray[0], list)
-    width = imgArray[0][0].shape[1]
-    height = imgArray[0][0].shape[0]
-    if rowsAvailable:
-        for x in range ( 0, rows):
-            for y in range(0, cols):
-                if imgArray[x][y].shape[:2] == imgArray[0][0].shape [:2]:
-                    imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)
-                else:
-                    imgArray[x][y] = cv2.resize(imgArray[x][y], (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale, scale)
-                if len(imgArray[x][y].shape) == 2: imgArray[x][y]= cv2.cvtColor( imgArray[x][y], cv2.COLOR_GRAY2BGR)
-        imageBlank = np.zeros((height, width, 3), np.uint8)
-        hor = [imageBlank]*rows
-        hor_con = [imageBlank]*rows
-        for x in range(0, rows):
-            hor[x] = np.hstack(imgArray[x])
-        ver = np.vstack(hor)
-    else:
-        for x in range(0, rows):
-            if imgArray[x].shape[:2] == imgArray[0].shape[:2]:
-                imgArray[x] = cv2.resize(imgArray[x], (0, 0), None, scale, scale)
-            else:
-                imgArray[x] = cv2.resize(imgArray[x], (imgArray[0].shape[1], imgArray[0].shape[0]), None,scale, scale)
-            if len(imgArray[x].shape) == 2: imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
-        hor= np.hstack(imgArray)
-        ver = hor
-    return ver
-
-def hand_main(data):
-    br = CvBridge()
-    img = br.imgmsg_to_cv2(data)
+def hand_main(img):
     imgResult = img.copy()
 
     imgBlur = cv2.GaussianBlur(img, (7, 7), 1)
     imgHSV = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2HSV)
     mask = mask_values()
+    
     imgMask, imgColorFilter = colorFilter(imgHSV,mask)
-
-    imgCropped = imgMask[cropVals[1]:cropVals[2]+cropVals[1],cropVals[0]:cropVals[0]+cropVals[3]]
-    imgResult = imgResult[cropVals[1]:cropVals[2] + cropVals[1], cropVals[0]:cropVals[0] + cropVals[3]]
-    imgOpen =cv2.morphologyEx(imgCropped, cv2.MORPH_OPEN,np.ones((5,5),np.uint8))
+    imgOpen =cv2.morphologyEx(imgMask, cv2.MORPH_OPEN,np.ones((5,5),np.uint8))
     imgClosed = cv2.morphologyEx(imgOpen, cv2.MORPH_CLOSE, np.ones((10, 10), np.uint8))
     imgFilter = cv2.bilateralFilter(imgClosed, 5, 75, 75)
     imgContour,imgResult = getContours(imgFilter,imgResult)
 
     ## TO DISPLAY
-    cv2.rectangle(img, (cropVals[0], cropVals[1]), (cropVals[0]+cropVals[3], cropVals[2]+cropVals[1]), (0, 255, 0), 2)
-    stackedImage = stackImages(0.7,([img,imgMask,imgColorFilter],[imgCropped,imgContour,imgResult]))
-
-
-
-    #imgBlank = np.zeros((512, 512, 3), np.uint8)
-    #stackedImage = stackImages(0.7, ([img, imgBlank, imgBlank], [imgBlank, imgBlank, imgBlank]))
-
-    cv2.imshow('Stacked Images', stackedImage)
-
-
+    cv2.imshow("Result",imgResult)
     cv2.waitKey(1)
 
-
-
 def ros_main():
- 
-  # Tells rospy the name of the node.
-  # Anonymous = True makes sure the node has a unique name. Random
-  # numbers are added to the end of the name. 
-  rospy.init_node('rock_paper_scissors_py', anonymous=True)
-   
-  # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, hand_main)
- 
-  # spin() simply keeps python from exiting until this node is stopped
-  rospy.spin()
+
+  rospy.init_node('hand_tracking_py', anonymous=True)
+
+  #initialise the camera
+  cap = cv2.VideoCapture(0)
+  
+  rate = rospy.Rate(10)
+  
+  while not rospy.is_shutdown():
+     
+      ret, frame = cap.read()
+         
+      if ret == True:
+      
+        auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+      
+        hand_main(auto_result)
+        
+        # Print debugging information to the terminal
+        rospy.loginfo('publishing the number of fingers')
+             
+      # Sleep just enough to maintain the desired rate
+      rate.sleep()
  
   # Close down the video stream when done
+  cap.release()
   cv2.destroyAllWindows()
   
 if __name__ == '__main__':

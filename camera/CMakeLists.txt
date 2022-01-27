@@ -129,11 +129,13 @@ catkin_install_python(PROGRAMS
 	src/webcam_pub.py
 	src/webcam_sub.py
 	src/webcam_pub_autoadjust.py
-	src/rock_paper_scissors.py
-	src/finger_counter_visu.py
+	src/rock_paper_scissors_view.py
+	src/rock_paper_scissors_view_v2.py
+	src/finger_counter_view.py
 	src/finger_counter_sw.py
-	src/find_player_visu.py
+	src/find_player_view.py
 	src/find_player_sw.py
+	src/object_recognition.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
