@@ -73,9 +73,9 @@ def ros_main():
   rate = rospy.Rate(10)
   
   #reference image  (CHANGER LES PATHS EN FONCTION DE L'ORDI OU DU PITCH)
-  ref_image = cv2.imread("/home/lucas/catkin_ws/src/camera/src/image_refs/face_dist_ref_1.jpg")
+  ref_image = cv2.imread("/home/ubuntu/pitch_ws/src/srm-pitch/camera/src/image_refs/face_dist_ref_1.jpg")
 
-  path = '/home/lucas/catkin_ws/src/camera/src/haarcascades/haarcascade_frontalface_default.xml'
+  path = '/home/ubuntu/pitch_ws/src/srm-pitch/camera/src/haarcascades/haarcascade_frontalface_default.xml'
   
   # LOAD THE CLASSIFIERS DOWNLOADED
   cascade = cv2.CascadeClassifier(path)
