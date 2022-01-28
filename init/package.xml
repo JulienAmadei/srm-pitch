@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>pitch_init</name>
+  <name>init</name>
   <version>1.0.0</version>
   <description>Pitch's initialization package</description>
 

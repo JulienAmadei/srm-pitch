@@ -47,5 +47,6 @@ def switch_server():
     rospy.spin()
 
 if __name__ == "__main__":
+    print("[Camera - Switcher server] Running.")
     switch_server()
     

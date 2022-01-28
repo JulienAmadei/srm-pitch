@@ -81,21 +81,19 @@ def handle_finger_counter(req):
   nb_finger = -1
   
   thumb_state = 0
+       
+  ret, frame = cap.read()
   
-  while nb_finger == -1 or thumb_state == 0:
-     
-      ret, frame = cap.read()
-         
-      if ret == True:
+  if ret == True:
       
-        auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+    auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
       
-        nb_finger, thumb_state = finger_detection(detector,auto_result)
+    nb_finger, thumb_state = finger_detection(detector,auto_result)
         
-        print(nb_finger, thumb_state)
+  print(nb_finger, thumb_state)
              
       # Sleep just enough to maintain the desired rate
-      rate.sleep()
+  rate.sleep()
  
   # Close down the video stream when done
   cap.release()
@@ -108,4 +106,5 @@ def server_main():
   rospy.spin()
 
 if __name__ == '__main__':
+  print("[Camera - Finger Counter server] Running.")
   server_main()

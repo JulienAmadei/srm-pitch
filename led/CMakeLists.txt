@@ -161,7 +161,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   src/blink_led_client_test.py
-  srv/blink_led_server.py
+  srv/led_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

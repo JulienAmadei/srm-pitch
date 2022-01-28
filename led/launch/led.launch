@@ -1,4 +1,4 @@
 <launch>
-  <node name="blink_led_server" pkg="led" type="blink_led_server.py" output="screen" />
+  <node name="led_server" pkg="led" type="led_server.py" output="screen" />
   <node name="led_client" pkg="led" type="blink_led_client_test.py" output="screen" />
 </launch>

@@ -18,7 +18,6 @@ def talker():
             line_status = False
         else:
             line_status = True
-        print(Sensors)
         #msg = "Is line found (%s)" % line_status
         #print(msg)
 
@@ -29,13 +28,12 @@ def talker():
 
 # To execute when invoked directly 
 if __name__ == '__main__':
+    print("[IR Line Sensor listener] Running.")
     TR = TRSensor()
     # PINS and INIT
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     TR.calibrate()
-    print(f"Calibrated Min: {TR.calibratedMin}")
-    print(f"Calibrated Max: {TR.calibratedMax}")
     try:
         # Run code
         talker()

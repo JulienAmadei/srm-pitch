@@ -9,7 +9,7 @@ import os
 import rospy
 
 from buzzer.srv import *
-from std_msgs.msg import  String, Int64, Bool
+from std_msgs.msg import  String, Float64, Bool
 
 ## Call for buzzer method depending of the type of object cast
 

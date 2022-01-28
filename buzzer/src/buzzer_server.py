@@ -7,7 +7,7 @@ NAME = 'buzzer_server'
 import roslib
 import time
 
-from std_msgs.msg import  String, Int64, Bool
+from std_msgs.msg import  String, Float64, Bool
 import rospy 
 
 import RPi.GPIO as GPIO
@@ -32,5 +32,5 @@ def buzzer_server():
     rospy.spin()
 
 if __name__ == "__main__":
-    print("[Buzzer server] Please keep this running in a separate tab.")
+    print("[Buzzer server] Running.")
     buzzer_server()

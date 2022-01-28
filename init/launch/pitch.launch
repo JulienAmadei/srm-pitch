@@ -1,0 +1,30 @@
+<launch>
+  <!-- Buzzer Service Server-->
+  <node name="buzzer_server" pkg="buzzer" type="buzzer_server.py" output="screen" />
+  
+  <!-- Camera Services Servers-->
+  <node name="camera_server_switcher" pkg="camera" type="camera_switch.py" output="screen" />
+  <node name="camera_find_player_server" pkg="camera" type="find_player_server.py" output="screen" />
+  <node name="camera_finger_counter_server" pkg="camera" type="finger_counter_server.py" output="screen" />
+ 
+  <!-- IR Line Sensor Talker -->
+  <node name="ir_line_sensor_talker" pkg="ir_line_sensor" type="ir_line_sensor_talker.py" output="screen" />
+  
+  <!-- IR Remote Talker-->
+  <node name="ir_remote_talker" pkg="ir_remote" type="ir_talker.py" output="screen" />
+ 
+  <!-- IR Proximity Sensors Talker -->
+  <node name="ir_top_talker" pkg="ir_top" type="ir_top_talker.py" output="screen" />
+  
+  <!-- LEDs Service Server -->
+  <node name="led_server" pkg="led" type="led_server.py" output="screen" />
+  
+  <!-- Motors Action Server-->
+  <node name="motor_action_server" pkg="motor" type="motor_action_server.py" output="screen" />
+  
+  <!-- Servos Action Server -->
+  <node name="servo_action_server" pkg="servo" type="servo_action_server.py" output="screen" />
+  
+  <!-- PITCH START -->
+  <node name="pitch_client" pkg="init" type="init_main.py" output="screen" />
+</launch>

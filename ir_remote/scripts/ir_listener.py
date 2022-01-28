@@ -6,18 +6,18 @@ import rospy
 from std_msgs.msg import String 
 
 
-def callback(data):
+def ir_callback(data):
     
     if "None (None)" != data.data:
         rospy.loginfo('Button Pressed:  %s', data.data)
-        
+    return data.data
     
-def listener():
+def ir_listener():
     # Create a Listener Node
     rospy.init_node('remote_listener', anonymous=True)
 
     # Used for subscribing to 'messages' topic
-    rospy.Subscriber('remote_input', String, callback)
+    rospy.Subscriber('remote_input', String, ir_callback)
 
     # Keeps python from exiting until this node is stopped
     rospy.spin()
@@ -26,4 +26,4 @@ def listener():
 if __name__ == '__main__':
     print("[IR LISTENER WINDOW]")
     # Run code
-    listener()
+    ir_listener()

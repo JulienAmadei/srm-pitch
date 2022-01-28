@@ -35,13 +35,14 @@ def blink(req):
 
 
 def blink_led_server():
-    rospy.init_node('blink_led_server')
+    rospy.init_node('led_server')
     s = rospy.Service('led_blink', BlinkLED, blink)
     rospy.spin()
 
     
 
 if __name__ == "__main__":
+    print("[LED server] Running.")
     blink_led_server()
 
 

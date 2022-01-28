@@ -45,10 +45,10 @@ class MotorAction(object):
             Ab.forward();
         elif goal.order == 'bwd':
             Ab.backward();
-        elif goal.order == 'bwd':
-            Ab.backward();
-        elif goal.order == 'bwd':
-            Ab.backward();
+        elif goal.order == 'rgt':
+            Ab.right();
+        elif goal.order == 'lft':
+            Ab.left();
         else:
             rospy.loginfo('unknown order')
             
@@ -66,6 +66,7 @@ class MotorAction(object):
         success = True
         
 if __name__ == '__main__':
+    print("[Motor action server] Running.")
     rospy.init_node('motor_action_server')
     server = MotorAction(rospy.get_name())
     rospy.spin()

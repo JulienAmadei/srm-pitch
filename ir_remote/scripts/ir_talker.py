@@ -51,9 +51,9 @@ def getkey():
 
 
 def talker():
-    pub = rospy.Publisher('remote_input', String, queue_size = 10) 
+    pub = rospy.Publisher('remote_input', String, queue_size = 1) 
     rospy.init_node('remote_talker', anonymous=True)
-    rate = rospy.Rate(500) # 500hz
+    rate = rospy.Rate(500) # 5000hz
     while not rospy.is_shutdown():
         try:
             key = getkey()            
@@ -138,7 +138,7 @@ def talker():
 
 # To execute when invoked directly 
 if __name__ == '__main__':
-    print("[IR TALKER WINDOW]")
+    print("[IR Remote listener] Running.")
     try:
         msg = ""
         talker()

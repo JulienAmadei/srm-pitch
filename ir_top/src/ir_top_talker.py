@@ -14,10 +14,6 @@ def talker():
         DL_status = GPIO.input(DL)
         DR_status = GPIO.input(DR)
 
-        msg_L = "Output for Left IR (%s)" % DL_status
-        msg_R = "Output for Right IR (%s)" % DR_status
-        print(msg_L, msg_R)
-
         # Publishes a string to our messages topic
         pub_L.publish(DL_status)
         pub_R.publish(DR_status)
@@ -26,6 +22,7 @@ def talker():
 
 # To execute when invoked directly 
 if __name__ == '__main__':
+    print("[IR Proximity Sensor listener] Running.")
     # PINS and INIT
     DR = 16
     DL = 19

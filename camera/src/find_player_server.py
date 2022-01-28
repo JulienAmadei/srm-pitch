@@ -88,29 +88,27 @@ def handle_find_player(req):
   focal_length_found = (ref_image_face_width * Known_distance) / known_width
   
   distance = -1
-  
-  while distance == -1 or distance > 100 :
-     
-      ret, frame = cap.read()
+       
+  ret, frame = cap.read()
          
-      if ret == True:
+  if ret == True:
       
-        auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+    auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
       
-        face_width_in_frame = face_data(auto_result,cascade)
+    face_width_in_frame = face_data(auto_result,cascade)
     
-        if face_width_in_frame == 0 :
+  if face_width_in_frame == 0 :
         
-          distance = -1
+    distance = -1
           
-        else :
+  else :
             
-          distance = (known_width * focal_length_found)/face_width_in_frame
+    distance = (known_width * focal_length_found)/face_width_in_frame
         
-        print(distance)
+  print(int(distance))
              
       # Sleep just enough to maintain the desired rate
-      rate.sleep()
+  rate.sleep()
  
   # Close down the video stream when done
   cap.release()
@@ -123,4 +121,5 @@ def server_main():
   rospy.spin()
 
 if __name__ == '__main__':
+  print("[Camera - Find Player server] Running.")
   server_main()
