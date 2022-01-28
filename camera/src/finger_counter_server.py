@@ -5,7 +5,7 @@ import rospy # Python library for ROS
 from std_msgs.msg import Int16 # Image is the message type
 from cvzone.HandTrackingModule import HandDetector
 import cv2
-from FingerCounterService.srv import *
+from camera.srv import *
 
 
 def automatic_brightness_and_contrast(image, clip_hist_percent=1):
@@ -68,7 +68,7 @@ def finger_detection(detector,img):
         
     return totalFingers, thumb_state
     
-def handle_finger_counter():
+def handle_finger_counter(req):
   
   #initialise the hand detector
   detector = HandDetector()
@@ -78,7 +78,11 @@ def handle_finger_counter():
   
   rate = rospy.Rate(10)
   
-  while not rospy.is_shutdown():
+  nb_finger = -1
+  
+  thumb_state = 0
+  
+  while nb_finger == -1 or thumb_state == 0:
      
       ret, frame = cap.read()
          
@@ -96,7 +100,7 @@ def handle_finger_counter():
   # Close down the video stream when done
   cap.release()
   
-  return nb_finger, thumb_state
+  return nb_finger, thumb_state 
   
 def server_main():
   rospy.init_node('finger_counter_server_py')

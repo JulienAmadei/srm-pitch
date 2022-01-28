@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import rospy
-from CameraSwitch.srv import *
+from camera.srv import *
 
 def find_player_client():
     rospy.wait_for_service('find_player_service')
     try:
         find_player = rospy.ServiceProxy('find_player_service', FindPlayerService)
         res = find_player()
-        return res.distance
+        return 0, 0, res.distance
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -17,7 +17,7 @@ def finger_counter_client():
     try:
         finger_counter = rospy.ServiceProxy('finger_counter_service', FingerCounterService)
         res = finger_counter()
-        return res.nb_finger, res.thumb_state
+        return res.nb_finger, res.thumb_state, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -31,20 +31,19 @@ def color_recognition_client():
         print("Service call failed: %s"%e)
 
 def handle_switch(req):
-    match req.obj :
+    switch =  {
+        "hand": finger_counter_client,
+        "face": find_player_client,
+        "color": color_recognition_client,
+    }
     
-        case 'hand':
-            return finger_counter_client()
-        
-        case 'face':
-            return find_player_client()
-        
-        case 'color':
-            return color_recognition_client()
+    chosen_client = switch.get(req.obj)
+    
+    return chosen_client()
 
 def switch_server():
     rospy.init_node('camera_switch_py')
-    s = rospy.Service('camera_service', CameraService, handle_switch)
+    s = rospy.Service('camera_service', SwitchService, handle_switch)
     rospy.spin()
 
 if __name__ == "__main__":

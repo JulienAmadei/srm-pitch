@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import rospy # Python library for ROS
-from std_msgs.msg import Int16 # Image is the message type
 import cv2
-from FindPlayerService.srv import *
+from camera.srv import *
 
 ################################################################
 
@@ -47,7 +46,7 @@ def face_data(image, cascade):
 	face_width = 0 # making face width to zero
 
 	# converting color image ot gray scale image
-	gray_image = cv2.cvtColor(iFindPlayerServicemage, cv2.COLOR_BGR2GRAY)
+	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 	# detecting face in the image
 	faces = cascade.detectMultiScale(gray_image, 1.3, 5)
@@ -62,7 +61,7 @@ def face_data(image, cascade):
 	# return the face width in pixel
 	return face_width
 
-def handle_find_player():
+def handle_find_player(req):
  
   #initialise the camera
   cap = cv2.VideoCapture(0)
@@ -91,7 +90,7 @@ def handle_find_player():
   
   distance = -1
   
-  while distance = -1 or distance > 100 :
+  while distance == -1 or distance > 100 :
      
       ret, frame = cap.read()
          
@@ -117,7 +116,7 @@ def handle_find_player():
   # Close down the video stream when done
   cap.release()
   
-  return distance
+  return int(distance)
 
 def server_main():
   rospy.init_node('find_player_server_py')
