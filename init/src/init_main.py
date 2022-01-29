@@ -254,6 +254,40 @@ def RPS_game_state(pitch_move, user_move):
     else:
         gameSet = True
     return (gameSet, state)
+    
+######################################################
+#  Game 2-specific functions (Wheel) #
+######################################################
+def Whl_init():
+    global red
+    global green
+    global blue 
+    red = [[255, 0, 0], "red"]
+    green = [[0, 255, 0], "green"]
+    blue = [[0, 0, 255], "blue"] 
+    global Whl_playerReady
+    Whl_playerReady = 1
+    print("Wait a moment ! I'm setting up the Simon playground.")
+
+def Whl_color():
+    color = choice([red, green, blue])
+    return color
+
+
+def Whl_camera_analysis():
+    t = 0
+    rospy.wait_for_service("camera_service")
+    while t < 3:  # 3 Tests
+        obj_to_detect = "wheel"
+        var1 = camera_client(obj_to_detect)
+        found = var1[3] #RGB
+        if found == [0, 0, 0]:
+            t = 0
+        else:
+            t = t + 1
+        color = found
+    return color
+
 
 ######################################################
 #  Game 3-specific functions (Simon) #
@@ -262,9 +296,9 @@ def Smn_init():
     global red
     global green
     global blue 
-    red = [255, 0, 0]
-    green = [0, 255, 0]
-    blue = [0, 0, 255] 
+    red = [[255, 0, 0], "red"]
+    green = [[0, 255, 0], "green"]
+    blue = [[0, 0, 255], "blue"] 
     global Smn_playerReady
     Smn_playerReady = 1
     print("Wait a moment ! I'm setting up the Simon playground.")
@@ -281,22 +315,15 @@ def Smn_color():
     return color
 
 
-def Smn_camera_analysis():
+def Smn_camera_analysis(color):
     t = 0
     rospy.wait_for_service("camera_service")
     while t < 3:  # 3 Tests
-        print(t," times")
-        obj_to_detect = "hand"
+        obj_to_detect = color[1]
         var1 = camera_client(obj_to_detect)
-        nb_finger = var1[0]
-        thumb_state = var1[1]
-        print(nb_finger)
-        if nb_finger >= 4:
-            color = red
-        elif nb_finger >= 2 and nb_finger < 4:
-            color = green
-        elif nb_finger > -1 and nb_finger < 2:
-            color = blue
+        found = var1[3]
+        if found:
+            color = False
         else:
             color = False
         t = t + 1
@@ -390,29 +417,25 @@ if __name__ == "__main__":
                             choice_done = True
                             led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
                             chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
-                            Smn_init() # Initialize the RPS playground
+                            Whl_init() # Initialize the RPS playground
                             while Smn_playerReady == 1: # Player is considered ready as they enter the game
-                                timer = 15 #seconds to find color
-                                found = False
-                                Smn_ready_steady()
-                                color = Smn_color()
-                                led_blink_client(timer, 0, color)
-                                begin = time.time()
-                                found = Smn_camera_analysis()
+                                color = Whl_color()
+                                led_blink_client(0, 2, color[0])
+                                found = Whl_camera_analysis()
                                 
-                                if found == color:
+                                if found == color[0]:
                                     print("well done !")
                                 else:
-                                    print("Too late, you lose!")
+                                    print("Too late, I lose!")
                                 Smn_playerReady = 0
                                 time.sleep(5)
+                                led_blink_client(0, 2, [0, 0, 0])
                                 print("Wanna play again ?")
                                 #% Use the wanna_play function
                                 while Smn_playerReady == 0: # Wait for user feedback
                                     Smn_playerReady = wanna_play()
-                                    print(Smn_playerReady)  
-                            
-                            
+                                    print(Smn_playerReady)
+                                
                             
                         elif chosen_game_ID == 3: # ID 3 - Simon
                             choice_done = True
@@ -424,11 +447,11 @@ if __name__ == "__main__":
                                 found = False
                                 Smn_ready_steady()
                                 color = Smn_color()
-                                led_blink_client(timer, 0, color)
+                                led_blink_client(timer, 0, color[0])
                                 begin = time.time()
                                 found = Smn_camera_analysis()
                                 
-                                if found == color:
+                                if found:
                                     print("well done !")
                                 else:
                                     print("Too late, you lose!")
