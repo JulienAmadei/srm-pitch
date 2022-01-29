@@ -1,54 +1,86 @@
 #!/usr/bin/env python3
- 
-# Import the necessary libraries
+
 import rospy # Python library for ROS
-import cv2 # OpenCV library
-from sensor_msgs.msg import Image # Image is the message type
-from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
-import numpy as np
-from ColorRecognitionService import *
+import cv2
+from camera.srv import *
 
-def color_main(data):
- 
-  # Used to convert between ROS and OpenCV images
-  br = CvBridge()
+################################################################
+
+def automatic_brightness_and_contrast(image, clip_hist_percent=1):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Calculate grayscale histogram
+    hist = cv2.calcHist([gray],[0],None,[256],[0,256])
+    hist_size = len(hist)
+    
+    # Calculate cumulative distribution from the histogram
+    accumulator = []
+    accumulator.append(float(hist[0]))
+    for index in range(1, hist_size):
+        accumulator.append(accumulator[index -1] + float(hist[index]))
+    
+    # Locate points to clip
+    maximum = accumulator[-1]
+    clip_hist_percent *= (maximum/100.0)
+    clip_hist_percent /= 2.0
+    
+    # Locate left cut
+    minimum_gray = 0
+    while accumulator[minimum_gray] < clip_hist_percent:
+        minimum_gray += 1
+    
+    # Locate right cut
+    maximum_gray = hist_size -1
+    while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
+        maximum_gray -= 1
+    
+    # Calculate alpha and beta values
+    alpha = 255 / (maximum_gray - minimum_gray)
+    beta = -minimum_gray * alpha
+
+    auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+    return (auto_result, alpha, beta)
+
+def handle_color_selection(req):
   
-  # Output debugging information to the terminal
-  rospy.loginfo("receiving video frame")
+  cap = cv2.VideoCapture(0)
   
-  # Convert ROS Image message to OpenCV image
-  img = br.imgmsg_to_cv2(data)
-  imgHsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-  h_min = 80
-  h_max = 100
-  s_min = 0
-  s_max = 255
-  v_min = 0
-  v_max = 255
-
-  lower = np.array([h_min,s_min,v_min])
-  upper = np.array([h_max,s_max,v_max])
-  mask = cv2.inRange(imgHsv,lower,upper)
-  result = cv2.bitwise_and(img,img, mask = mask)
-
-  cv2.imshow('Result', result)
-  cv2.waitKey(1)
+  rate = rospy.Rate(10)
+  
+  ret, frame = cap.read()
+  
+  if ret == True:
       
-def ros_main():
- 
-  # Tells rospy the name of the node.
-  # Anonymous = True makes sure the node has a unique name. Random
-  # numbers are added to the end of the name. 
-  rospy.init_node('color_selection_py', anonymous=True)
-   
-  # Node is subscribing to the video_frames topic
-  rospy.Subscriber('video_frames', Image, color_main)
- 
-  # spin() simply keeps python from exiting until this node is stopped
-  rospy.spin()
+    auto_result, alpha, beta = automatic_brightness_and_contrast(frame)
+    
+    imgHsv = cv2.cvtColor(auto_result,cv2.COLOR_BGR2HSV)
+
+    lower = np.array(red[0])
+    upper = np.array(red[1])
+    mask = cv2.inRange(imgHsv,lower,upper)
+    result = cv2.bitwise_and(img,img, mask = mask)
+
+    cv2.imshow('Result', result)
+    cv2.imshow('img',img)
+    cv2.waitKey(1)
+    
+  rate.sleep()
  
   # Close down the video stream when done
-  cv2.destroyAllWindows()
+  cap.release()
   
+  return res 
+
+def server_main():
+  rospy.init_node('color_selection_server_py')
+  s = rospy.Service('color_selection_service', ColorSelectionService, handle_color_selection)
+  rospy.spin()
+
 if __name__ == '__main__':
-  ros_main()
+  print("[Camera - Find Player server] Running.")
+  
+  red = [[-20,0,0],[20,255,255]]
+  green = [[100,0,0],[140,255,255]]
+  blue = [[220,0,0],[260,255,255]]
+  
+  server_main()

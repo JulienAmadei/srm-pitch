@@ -16,11 +16,6 @@ def camera_client(data):
 
 
 if __name__ == "__main__":
-    obj_to_detect = 'hand'
+    obj_to_detect = 'color_code'
     var1 = camera_client(obj_to_detect)
-    nb_finger = var1[0]
-    thumb_state = var1[1]
-    obj_to_detect = 'face'
-    var2 = camera_client(obj_to_detect)
-    distance = var2[2]
-    print(nb_finger,thumb_state,distance)
+    print(var1)

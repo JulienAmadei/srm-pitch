@@ -116,6 +116,7 @@ catkin_install_python(PROGRAMS
 	src/object_recognition.py
 	src/camera_switch.py
 	src/test_for_services.py
+	src/color_selection_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
