@@ -83,9 +83,11 @@ def buzzer_client(requestedTime):
 
 def ir_callback(data):
     global chosen_game_ID
-    chosen_game_ID = 0
+    chosen_game_ID = -1
     msg = data.data
     print(f"msg : {msg}")
+    if msg == "0 (0x16)":
+        chosen_game_ID = 0
     if msg == "1 (0x0C)":
         chosen_game_ID = 1
     if msg == "2 (0x18)":
@@ -116,9 +118,11 @@ def pitch_init():
     global nb_finger
     nb_finger = -1
     global chosen_game_ID
-    chosen_game_ID = 0
+    chosen_game_ID = -1
     global game_begin
     game_begin = False
+    global choice_done
+    choice_done = False
 
 
 def look_for_user():
@@ -129,7 +133,7 @@ def look_for_user():
         obj_to_detect = "face"
         detectedvar = camera_client(obj_to_detect)
         measured_distance = detectedvar[2]
-        t = 1
+        
         print(measured_distance)
         if measured_distance != -1:
             if measured_distance > max_treshold_distance:
@@ -138,29 +142,39 @@ def look_for_user():
             if measured_distance < min_treshold_distance:
                 print("Too close ! Let me back away a little bit.")
                 motor_client("bwd")
+            else:
+                t = t + 1
         else:
             print("I can't find anyone...")
+            t = 0
     return measured_distance
 
 
 def wanna_play():
-    t = 0
+    y = 0
+    n = 0
     rospy.wait_for_service("camera_service")
-    while t < 3:  # 3 Tests before validation
-        print(t)
+    while y < 3 and n < 3:  # 3 Tests before validation
+        
         obj_to_detect = "hand"
         var1 = camera_client(obj_to_detect)
         nb_finger = var1[0]
         thumb_state = var1[1]
-        t = 1
+        
         print(thumb_state)
         if nb_finger != -1 and thumb_state != 0:
             if thumb_state == 1:
-                print("You said yes !")
+                print("You said yes !", y, "times")
+                y = y + 1
+                n = 0
             if thumb_state == -1:
-                print("You said no..")
+                print("You said no..", n, "times")
+                n = n + 1
+                y = 0 
         else:
             print("I can't see your fingers...")
+            y = 0
+            n = 0
     return thumb_state
 
 
@@ -205,19 +219,23 @@ def RPS_camera_analysis():
     t = 0
     rospy.wait_for_service("camera_service")
     while t < 3:  # 3 Tests
-        print(t)
+        print(t," times")
         obj_to_detect = "hand"
         var1 = camera_client(obj_to_detect)
         nb_finger = var1[0]
         thumb_state = var1[1]
-        t = 1
         print(nb_finger)
         if nb_finger >= 4:
             user_move = 2
-        if nb_finger < 2:
+            t = t + 1
+        elif nb_finger >= 2 and nb_finger < 4:
             user_move = 3
-        else:
+            t = t + 1
+        elif nb_finger > -1 and nb_finger < 2:
             user_move = 1
+            t = t + 1
+        else:
+            t = 0
     print(f"Oh, so your move is... {RPS_moves[user_move]} !")
     return user_move
 
@@ -254,71 +272,84 @@ if __name__ == "__main__":
             led_blink_client(0, 2, [0, 255, 0]) # Blink Green to have visual feedback
             buzzer_client(0.2) # Buzz for sound feedback
             led_blink_client(0, 2, [0, 0, 0]) # Turn off the LEDs
-            player_ready = wanna_play() # Ask the found user if they want to play
-            while nb_finger != 1 and thumb_state == 0: # As long as the thumb state (up/down) is unsure, and the number of fingers not found
-                thumb_state = wanna_play() # Loop
+            thumb_state = wanna_play() # Ask the found user if they want to play
+            
             if thumb_state == 1: # If the user wants to play (thumbs up)
-                led_blink_client(0, 2, [255, 255, 255]) # Blink White to have visual feedback
-                buzzer_client(0.2)  # Buzz for sound feedback
-                print("What game do you want to play ? Use the IR remote to tell me !")
-                while True:  # Forever loop for query
-                    if chosen_game_ID == 1: # ID 1 - RPS
-                        led_blink_client(0, 2, [255, 0, 255]) # Blink Purple to show selection
-                        RPS_init() # Initialize the RPS playground.
-                        chosen_game_ID = 0 # Cancel chosen_game_ID, as unused as of now
-                        while RPS_playerReady == 1: # Player is considered ready as they enter the game
+                play_game = True
+                while play_game:
+                    choice_done = False
+                    led_blink_client(0, 2, [255, 255, 255]) # Blink White to have visual feedback
+                    buzzer_client(0.2)  # Buzz for sound feedback
+                    print("What game do you want to play ? Use the IR remote to tell me !")
+                    while  choice_done == False:  # Forever loop for query
+                        if chosen_game_ID == 0: # ID 0 - Cancel
+                            play_game = False
+                            choice_done = True
+                            chosen_game_ID = -1
+                            print("Cancelled")
+                        elif chosen_game_ID == 1: # ID 1 - RPS
+                            choice_done = True
+                            led_blink_client(0, 2, [255, 0, 255]) # Blink Purple to show selection
+                            RPS_init() # Initialize the RPS playground.
+                            chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
+                            while RPS_playerReady == 1: # Player is considered ready as they enter the game
+
+                                while not RPS_gameSet:  # Loop on ties
+                                    buzzer_client(0.2)  # This
+                                    time.sleep(0.5)     # is
+                                    buzzer_client(0.2)  # a
+                                    time.sleep(0.5)     # small
+                                    buzzer_client(0.5)  # countdown
+                                
+                                    user_move = RPS_camera_analysis() # See what the user chose
+                                    pitch_move = RPS_pitch_move()     # Generate a random choice for the robot
+                                    (RPS_gameSet, state) = RPS_game_state(pitch_move, user_move) # Use game logic to see who won
+                                if state:  # Pitch won
+                                    RPS_playerReady = 0
+                                    led_blink_client(6, 1, [255, 0, 255]) # Blink for visual feedback
+                                    motor_client("lft") # Pitch
+                                    buzzer_client(0.5)  # is
+                                    motor_client("rgt") # now
+                                    time.sleep(1)       # dancing
+                                    buzzer_client(0.5)  # after 
+                                    motor_client("fwd") # its
+                                    time.sleep(1)       # win
+                                    buzzer_client(0.5)  # for
+                                    motor_client("bwd") # about
+                                    time.sleep(1)       # six
+                                    buzzer_client(0.5)  # seconds
+                                    time.sleep(1)       # roughly
+                                    print("Wanna play again ?")
+                                    #% Use the wanna_play function
+                                    while RPS_playerReady == 0: # Wait for user feedback
+                                        RPS_playerReady = wanna_play()
+                                        print(RPS_playerReady)
+                                else: # Pitch lost
+                                    led_blink_client(0, 2, [255, 0, 0]) # Blink red for visual feedback
+                                    buzzer_client(2) # Buzz out of rage
+                                    led_blink_client(0, 2, [0, 0, 0]) # Turn off leds
+                                    print("Let's stop it there.") # Sore loser
+                                    RPS_playerReady = -1
+                            
+                        elif chosen_game_ID == 2: # ID 2 - Wheel
+                            choice_done = True
+                            led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
+                            led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
                             buzzer_client(0.2)  # This
                             time.sleep(0.5)     # is
-                            buzzer_client(0.2)  # a
-                            time.sleep(0.5)     # small
-                            buzzer_client(0.5)  # countdown
-                            while not RPS_gameSet:  # Loop on ties
-                                user_move = RPS_camera_analysis() # See what the user chose
-                                pitch_move = RPS_pitch_move()     # Generate a random choice for the robot
-                                (RPS_gameSet, state) = RPS_game_state(pitch_move, user_move) # Use game logic to see who won
-                            if state:  # Pitch won
-                                RPS_playerReady = 0
-                                led_blink_client(6, 1, [255, 0, 255]) # Blink for visual feedback
-                                motor_client("lft") # Pitch
-                                buzzer_client(0.5)  # is
-                                motor_client("rgt") # now
-                                time.sleep(1)       # dancing
-                                buzzer_client(0.5)  # after 
-                                motor_client("fwd") # its
-                                time.sleep(1)       # win
-                                buzzer_client(0.5)  # for
-                                motor_client("bwd") # about
-                                time.sleep(1)       # six
-                                buzzer_client(0.5)  # seconds
-                                time.sleep(1)       # roughly
-                                print("Wanna play again ?")
-                                #% Use the wanna_play function
-                                while RPS_playerReady == 0: # Wait for user feedback
-                                    RPS_playerReady = wanna_play()
-                            else: # Pitch lost
-                                led_blink_client(0, 2, [255, 0, 0]) # Blink red for visual feedback
-                                buzzer_client(2) # Buzz out of rage
-                                led_blink_client(0, 2, [0, 0, 0]) # Turn off leds
-                                print("Let's stop it there.") # Sore loser
-                                RPS_playerReady = -1
-                            break
-                    if chosen_game_ID == 2: # ID 2 - Wheel
-                        led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
-                        led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
-                        buzzer_client(0.2)  # This
-                        time.sleep(0.5)     # is
-                        buzzer_client(0.2)  # yet
-                        time.sleep(0.5)     # another
-                        buzzer_client(0.5)  # cooldown
+                            buzzer_client(0.2)  # yet
+                            time.sleep(0.5)     # another
+                            buzzer_client(0.5)  # cooldown
 
-                    if chosen_game_ID == 3: # ID 3 - Wheel
-                        led_blink_client(0, 2, [255, 255, 0]) # Blink Yellow to show selection
-                        led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
-                        buzzer_client(0.2)  # This
-                        time.sleep(0.5)     # is
-                        buzzer_client(0.2)  # yet
-                        time.sleep(0.5)     # another
-                        buzzer_client(0.5)  # cooldown
+                        elif chosen_game_ID == 3: # ID 3 - Wheel
+                            choice_done = True
+                            led_blink_client(0, 2, [255, 255, 0]) # Blink Yellow to show selection
+                            led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
+                            buzzer_client(0.2)  # This
+                            time.sleep(0.5)     # is
+                            buzzer_client(0.2)  # yet
+                            time.sleep(0.5)     # another
+                            buzzer_client(0.5)  # cooldown
             else: # The user does not want to play
                 led_blink_client(2, 0, [255, 0, 0]) # Pitch lights up in red
                 servo_client(0, 20) # Looks up in disdain
@@ -331,6 +362,9 @@ if __name__ == "__main__":
                 motor_client("fwd") # Keeps running
                 motor_client("fwd") # Bye
                 break
+            servo_client(0, -80)
+            led_blink_client(0, 2, [0, 0, 0])
+            break
     except rospy.ROSInterruptException:
         print("The program (main_init.py) has just been interrupted !", file=sys.stderr)
 
