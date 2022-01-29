@@ -52,7 +52,6 @@ def mask_values():
     vals = h_min,s_min,v_min,h_max,s_max,v_max
     return vals
 
-
 def colorFilter(img, vals):
     lower_blue = np.array([vals[0],vals[1], vals[2]])
     upper_blue = np.array([vals[3], vals[4], vals[5]])
@@ -60,16 +59,6 @@ def colorFilter(img, vals):
     imgColorFilter = cv2.bitwise_and(img, img, mask=mask)
     ret, imgMask = cv2.threshold(mask, 127, 255, 0)
     return imgMask,imgColorFilter
-
-
-def sendData(fingers):
-
-    string = "$"+str(int(fingers[0]))+str(int(fingers[1]))+str(int(fingers[2]))+str(int(fingers[3]))+str(int(fingers[4]))
-    try:
-       ser.write(string.encode())
-       print(string)
-    except:
-        pass
 
 def getContours(imgCon,imgMatch):
 
@@ -121,6 +110,15 @@ def getContours(imgCon,imgMatch):
                 else: sendData([0, 0, 0, 0, 0]);FingerCount="Zero"
             cv2.putText(imgMatch,FingerCount,(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
     return imgCon,imgMatch
+
+def sendData(fingers):
+
+    string = "$"+str(int(fingers[0]))+str(int(fingers[1]))+str(int(fingers[2]))+str(int(fingers[3]))+str(int(fingers[4]))
+    try:
+       ser.write(string.encode())
+       print(string)
+    except:
+        pass
 
 def hand_main(img):
     imgResult = img.copy()

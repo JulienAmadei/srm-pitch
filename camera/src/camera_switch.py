@@ -30,11 +30,21 @@ def color_recognition_client():
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
+def color_selection_client():
+    rospy.wait_for_service('color_selection_service')
+    try:
+        color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
+        res = color_selection()
+        return 0,0,0,0,res.occurrence
+    except rospy.ServiceException as e:
+        print("Service call failed: %s"%e)
+
 def handle_switch(req):
     switch =  {
         "hand": finger_counter_client,
         "face": find_player_client,
-        "color": color_recognition_client,
+        "color_code": color_recognition_client,
+        "color_occurrence": color_selection_client,
     }
     
     chosen_client = switch.get(req.obj)
