@@ -34,7 +34,7 @@ def color_selection_red_client():
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
-def handle_wheel():
+def handle_wheel(req):
     height_red = color_selection_red_client()
     height_green = color_selection_green_client()
     height_blue = color_selection_blue_client()
