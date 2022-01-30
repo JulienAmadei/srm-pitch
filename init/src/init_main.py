@@ -31,7 +31,7 @@ def camera_client(data):
     try:
         switch = rospy.ServiceProxy("camera_service", SwitchService)
         res = switch(data)
-        return res.nb_finger, res.thumb_state, res.distance
+        return res.nb_finger, res.thumb_state, res.distance, res.color_name, res.color_occurrence, res.height
     except rospy.ServiceException as e:
         print("Service call failed: %s" % e)
 
@@ -147,13 +147,13 @@ def look_for_user():
                 t = t + 1
         else:
             z = z + 25
-            if z >= 50:
+            if z > 50:
                 z = -50
                 motor_client("lft",1.0)
             servo_client(z, -30)
             print("I can't find anyone...")
             t = 0
-    return measured_distance
+    return measured_distance, z
 
 
 def wanna_play():
@@ -183,6 +183,41 @@ def wanna_play():
             n = 0
     return thumb_state
 
+def win_dance(neck_angle):
+    led_blink_client(6, 1, [255, 0, 255]) # Blink for visual feedback
+    servo_client(neck_angle, -80)
+    time.sleep(0.2)       # dancing
+    servo_client(neck_angle, -30)
+    time.sleep(0.2)       # dancing
+    servo_client(neck_angle, -80)
+    time.sleep(0.2)       # dancing
+    servo_client(neck_angle, -30)
+    
+    motor_client("lft",0.5) # Pitch
+    buzzer_client(0.5)  # is
+    motor_client("rgt",0.5) # now
+    time.sleep(1)       # dancing
+    buzzer_client(0.5)  # after 
+    motor_client("fwd",0.5) # its
+    time.sleep(1)       # win
+    buzzer_client(0.5)  # for
+    motor_client("bwd",0.5) # about
+    time.sleep(1)       # six
+    buzzer_client(0.5)  # seconds
+    time.sleep(1)       # roughly
+    
+def lose(neck_angle):
+    led_blink_client(0, 2, [255, 0, 0]) # Blink red for visual feedback
+    buzzer_client(2) # Buzz out of rage
+    servo_client(-50, -80)
+    time.sleep(0.2)       # dancing
+    servo_client(50, -80)
+    time.sleep(0.2)       # dancing
+    servo_client(-50, -80)
+    time.sleep(0.2)       # dancing
+    servo_client(neck_angle, -30)
+
+    led_blink_client(0, 2, [0, 0, 0]) # Turn off leds
 
 ######################################################
 #  Game 1-specific functions (Rock, Paper, Scissors) #
@@ -267,7 +302,7 @@ def Whl_init():
     blue = [[0, 0, 255], "blue"] 
     global Whl_playerReady
     Whl_playerReady = 1
-    print("Wait a moment ! I'm setting up the Simon playground.")
+    print("Wait a moment ! I'm setting up the Wheel playground.")
 
 def Whl_color():
     color = choice([red, green, blue])
@@ -281,11 +316,12 @@ def Whl_camera_analysis():
         obj_to_detect = "wheel"
         var1 = camera_client(obj_to_detect)
         found = var1[3] #RGB
-        if found == [0, 0, 0]:
+        if found == "none":
             t = 0
         else:
             t = t + 1
         color = found
+        print("Oh, I see ... ", color, " !")
     return color
 
 
@@ -324,11 +360,11 @@ def Smn_camera_analysis(color):
         var1 = camera_client(obj_to_detect)
         found = var1[4]
         if found:
-            color = True
+            res = True
         else:
-            color = False
+            res = False
         t = t + 1
-    return color
+    return res
 
 
 #######################################################
@@ -346,7 +382,7 @@ if __name__ == "__main__":
                 or user_distance > max_treshold_distance
                 or user_distance < min_treshold_distance
             ):
-                user_distance = look_for_user() # Register the current user distance
+                user_distance, neck_angle = look_for_user() # Register the current user distance
                 if user_distance == -1: # If no user is found nearby,
                     servo_client(randint(-50, 50), -30) # randomly move servos
             print("Found someone !")
@@ -386,31 +422,18 @@ if __name__ == "__main__":
                                     pitch_move = RPS_pitch_move()     # Generate a random choice for the robot
                                     (RPS_gameSet, state) = RPS_game_state(pitch_move, user_move) # Use game logic to see who won
                                 if state:  # Pitch won
-                                    RPS_playerReady = 0
-                                    led_blink_client(6, 1, [255, 0, 255]) # Blink for visual feedback
-                                    motor_client("lft",0.5) # Pitch
-                                    buzzer_client(0.5)  # is
-                                    motor_client("rgt",0.5) # now
-                                    time.sleep(1)       # dancing
-                                    buzzer_client(0.5)  # after 
-                                    motor_client("fwd",0.5) # its
-                                    time.sleep(1)       # win
-                                    buzzer_client(0.5)  # for
-                                    motor_client("bwd",0.5) # about
-                                    time.sleep(1)       # six
-                                    buzzer_client(0.5)  # seconds
-                                    time.sleep(1)       # roughly
-                                    print("Wanna play again ?")
-                                    #% Use the wanna_play function
-                                    while RPS_playerReady == 0: # Wait for user feedback
-                                        RPS_playerReady = wanna_play()
-                                        print(RPS_playerReady)
+                                    print("I'm the boss!")
+                                    win_dance(neck_angle)
                                 else: # Pitch lost
-                                    led_blink_client(0, 2, [255, 0, 0]) # Blink red for visual feedback
-                                    buzzer_client(2) # Buzz out of rage
-                                    led_blink_client(0, 2, [0, 0, 0]) # Turn off leds
-                                    print("Let's stop it there.") # Sore loser
-                                    RPS_playerReady = -1
+                                    print("Oh no.") # Sore loser
+                                    lose(neck_angle)
+                                RPS_playerReady = 0
+                                RPS_gameSet = False
+                                print("Wanna play again ?")
+                                #% Use the wanna_play function
+                                while RPS_playerReady == 0: # Wait for user feedback
+                                    RPS_playerReady = wanna_play()
+                                    
                                     
                                     
                                     
@@ -424,10 +447,12 @@ if __name__ == "__main__":
                                 led_blink_client(0, 2, color[0])
                                 found = Whl_camera_analysis()
                                 
-                                if found == color[0]:
-                                    print("well done !")
+                                if found == color[1]:
+                                    print("I guessed right !")
+                                    win_dance(neck_angle)
                                 else:
-                                    print("Too late, I lose!")
+                                    print("Somehow, I was wrong.")
+                                    lose(neck_angle)
                                 Whl_playerReady = 0
                                 time.sleep(5)
                                 led_blink_client(0, 2, [0, 0, 0])
@@ -435,7 +460,7 @@ if __name__ == "__main__":
                                 #% Use the wanna_play function
                                 while Whl_playerReady == 0: # Wait for user feedback
                                     Whl_playerReady = wanna_play()
-                                    print(Whl_playerReady)
+                                    
                                 
                             
                         elif chosen_game_ID == 3: # ID 3 - Simon
@@ -453,15 +478,17 @@ if __name__ == "__main__":
                                 
                                 if found:
                                     print("well done !")
+                                    win_dance(neck_angle)
                                 else:
                                     print("Too late, you lose!")
+                                    lose(neck_angle)
                                 Smn_playerReady = 0
                                 time.sleep(5)
                                 print("Wanna play again ?")
                                 #% Use the wanna_play function
                                 while Smn_playerReady == 0: # Wait for user feedback
                                     Smn_playerReady = wanna_play()
-                                    print(Smn_playerReady)
+                                    
 
 
             else: # The user does not want to play
