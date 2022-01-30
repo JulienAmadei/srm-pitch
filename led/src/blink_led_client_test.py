@@ -26,6 +26,6 @@ def led_blink_client(time, mode, color):
 if __name__ == "__main__":
     rospy.init_node('led_client')
     time = 10
-    mode = 2
-    color = [0,0,0]
+    mode = 0
+    color = [255,0,0]
     led_blink_client(time, mode, color)

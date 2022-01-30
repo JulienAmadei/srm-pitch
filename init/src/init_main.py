@@ -6,7 +6,7 @@
 # Packages
 from __future__ import print_function
 from re import S
-from random import randint
+from random import randint, choice
 import sys
 from tkinter import E
 import rospy
@@ -36,12 +36,12 @@ def camera_client(data):
         print("Service call failed: %s" % e)
 
 
-def motor_client(direction):
+def motor_client(direction, t):
     client = actionlib.SimpleActionClient("motor_action_server", motor.msg.MotorAction)
     client.wait_for_server()
     goal = motor.msg.MotorGoal(order=direction)
     client.send_goal(goal)
-    time.sleep(1)
+    time.sleep(t)
     client.cancel_goal()
     client.wait_for_result()
     return client.get_result()
@@ -104,7 +104,6 @@ def pitch_init():
     print("I'm starting up !")
     rospy.init_node("pitch_client")
     rospy.Subscriber("remote_input", String, ir_callback)
-    servo_client(0, -30)
     led_blink_client(0, 2, [0, 0, 0])
     # Global Pitch Variables
     global user_distance
@@ -127,6 +126,8 @@ def pitch_init():
 
 def look_for_user():
     t = 0
+    z = -50
+    servo_client(z, -30)
     rospy.wait_for_service("camera_service")
     while t < 5:  # 5 Tests before validation
         print(t)
@@ -138,13 +139,18 @@ def look_for_user():
         if measured_distance != -1:
             if measured_distance > max_treshold_distance:
                 print("You're a bit far ! I'm coming closer.")
-                motor_client("fwd")
+                motor_client("fwd",0.5)
             if measured_distance < min_treshold_distance:
                 print("Too close ! Let me back away a little bit.")
-                motor_client("bwd")
+                motor_client("bwd",0.5)
             else:
                 t = t + 1
         else:
+            z = z + 10
+            if z >= 50:
+                z = -50
+                motor_client("lft",1.0)
+            servo_client(z, -30)
             print("I can't find anyone...")
             t = 0
     return measured_distance
@@ -248,6 +254,80 @@ def RPS_game_state(pitch_move, user_move):
     else:
         gameSet = True
     return (gameSet, state)
+    
+######################################################
+#  Game 2-specific functions (Wheel) #
+######################################################
+def Whl_init():
+    global red
+    global green
+    global blue 
+    red = [[255, 0, 0], "red"]
+    green = [[0, 255, 0], "green"]
+    blue = [[0, 0, 255], "blue"] 
+    global Whl_playerReady
+    Whl_playerReady = 1
+    print("Wait a moment ! I'm setting up the Simon playground.")
+
+def Whl_color():
+    color = choice([red, green, blue])
+    return color
+
+
+def Whl_camera_analysis():
+    t = 0
+    rospy.wait_for_service("camera_service")
+    while t < 3:  # 3 Tests
+        obj_to_detect = "wheel"
+        var1 = camera_client(obj_to_detect)
+        found = var1[3] #RGB
+        if found == [0, 0, 0]:
+            t = 0
+        else:
+            t = t + 1
+        color = found
+    return color
+
+
+######################################################
+#  Game 3-specific functions (Simon) #
+######################################################
+def Smn_init():
+    global red
+    global green
+    global blue 
+    red = [[255, 0, 0], "red"]
+    green = [[0, 255, 0], "green"]
+    blue = [[0, 0, 255], "blue"] 
+    global Smn_playerReady
+    Smn_playerReady = 1
+    print("Wait a moment ! I'm setting up the Simon playground.")
+
+def Smn_ready_steady():
+    buzzer_client(0.2)  # This
+    time.sleep(0.5)     # is
+    buzzer_client(0.2)  # a
+    time.sleep(0.5)     # small
+    buzzer_client(0.5)  # countdown
+
+def Smn_color():
+    color = choice([red, green, blue])
+    return color
+
+
+def Smn_camera_analysis(color):
+    t = 0
+    rospy.wait_for_service("camera_service")
+    while t < 3:  # 3 Tests
+        obj_to_detect = color[1]
+        var1 = camera_client(obj_to_detect)
+        found = var1[3]
+        if found:
+            color = False
+        else:
+            color = False
+        t = t + 1
+    return color
 
 
 #######################################################
@@ -307,15 +387,15 @@ if __name__ == "__main__":
                                 if state:  # Pitch won
                                     RPS_playerReady = 0
                                     led_blink_client(6, 1, [255, 0, 255]) # Blink for visual feedback
-                                    motor_client("lft") # Pitch
+                                    motor_client("lft",0.5) # Pitch
                                     buzzer_client(0.5)  # is
-                                    motor_client("rgt") # now
+                                    motor_client("rgt",0.5) # now
                                     time.sleep(1)       # dancing
                                     buzzer_client(0.5)  # after 
-                                    motor_client("fwd") # its
+                                    motor_client("fwd",0.5) # its
                                     time.sleep(1)       # win
                                     buzzer_client(0.5)  # for
-                                    motor_client("bwd") # about
+                                    motor_client("bwd",0.5) # about
                                     time.sleep(1)       # six
                                     buzzer_client(0.5)  # seconds
                                     time.sleep(1)       # roughly
@@ -330,37 +410,62 @@ if __name__ == "__main__":
                                     led_blink_client(0, 2, [0, 0, 0]) # Turn off leds
                                     print("Let's stop it there.") # Sore loser
                                     RPS_playerReady = -1
-                            
-                        elif chosen_game_ID == 2: # ID 2 - Wheel
+                                    
+                                    
+                                    
+                        elif chosen_game_ID == 2: # ID 2 - Wheel 
                             choice_done = True
                             led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
-                            led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
-                            buzzer_client(0.2)  # This
-                            time.sleep(0.5)     # is
-                            buzzer_client(0.2)  # yet
-                            time.sleep(0.5)     # another
-                            buzzer_client(0.5)  # cooldown
-
-                        elif chosen_game_ID == 3: # ID 3 - Wheel
+                            chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
+                            Whl_init() # Initialize the RPS playground
+                            while Smn_playerReady == 1: # Player is considered ready as they enter the game
+                                color = Whl_color()
+                                led_blink_client(0, 2, color[0])
+                                found = Whl_camera_analysis()
+                                
+                                if found == color[0]:
+                                    print("well done !")
+                                else:
+                                    print("Too late, I lose!")
+                                Smn_playerReady = 0
+                                time.sleep(5)
+                                led_blink_client(0, 2, [0, 0, 0])
+                                print("Wanna play again ?")
+                                #% Use the wanna_play function
+                                while Smn_playerReady == 0: # Wait for user feedback
+                                    Smn_playerReady = wanna_play()
+                                    print(Smn_playerReady)
+                                
+                            
+                        elif chosen_game_ID == 3: # ID 3 - Simon
                             choice_done = True
-                            led_blink_client(0, 2, [255, 255, 0]) # Blink Yellow to show selection
-                            led_blink_client(2, 1, [0, 0, 0]) # Turn off LEDs
-                            buzzer_client(0.2)  # This
-                            time.sleep(0.5)     # is
-                            buzzer_client(0.2)  # yet
-                            time.sleep(0.5)     # another
-                            buzzer_client(0.5)  # cooldown
+                            led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
+                            chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
+                            Smn_init() # Initialize the RPS playground
+                            while Smn_playerReady == 1: # Player is considered ready as they enter the game
+                                timer = 15 #seconds to find color
+                                found = False
+                                Smn_ready_steady()
+                                color = Smn_color()
+                                led_blink_client(timer, 0, color[0])
+                                begin = time.time()
+                                found = Smn_camera_analysis()
+                                
+                                if found:
+                                    print("well done !")
+                                else:
+                                    print("Too late, you lose!")
+                                Smn_playerReady = 0
+                                time.sleep(5)
+                                print("Wanna play again ?")
+                                #% Use the wanna_play function
+                                while Smn_playerReady == 0: # Wait for user feedback
+                                    Smn_playerReady = wanna_play()
+                                    print(Smn_playerReady)
+
+
             else: # The user does not want to play
                 led_blink_client(2, 0, [255, 0, 0]) # Pitch lights up in red
-                servo_client(0, 20) # Looks up in disdain
-                motor_client("lft") # This
-                motor_client("lft") # is
-                motor_client("lft") # a 
-                motor_client("lft") # rotation
-                motor_client("fwd") # Runs in the opposite direction
-                buzzer_client(1)    # Cries
-                motor_client("fwd") # Keeps running
-                motor_client("fwd") # Bye
                 break
             servo_client(0, -80)
             led_blink_client(0, 2, [0, 0, 0])

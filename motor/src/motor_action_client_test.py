@@ -24,7 +24,7 @@ def motor_client():
     client.wait_for_server()
     print('server ok')
     # Creates a goal to send to the action server.
-    goal = motor.msg.MotorGoal(order='fwd')
+    goal = motor.msg.MotorGoal(order='lft')
 
     # Sends the goal to the action server.
     client.send_goal(goal)
@@ -32,14 +32,14 @@ def motor_client():
 
 
     # TEST => a remplacer par camera
-    time.sleep(5)
+    time.sleep(1)
     client.cancel_goal()
     time.sleep(2)
     
-    goal = motor.msg.MotorGoal(order='bwd')
+    goal = motor.msg.MotorGoal(order='rgt')
     client.send_goal(goal)
     print('goal sent')
-    time.sleep(5)
+    time.sleep(1)
     client.cancel_goal()
     # Waits for the server to finish performing the action.
     client.wait_for_result()

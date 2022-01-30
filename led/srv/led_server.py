@@ -24,10 +24,10 @@ def blink(req):
     arg = str(tf)+" "+str(R)+" "+str(G)+" "+str(B)
     if req.mode == 0:
         os.system("sudo python3 ~/pitch_ws/src/srm-pitch/led/srv/blink_led_exe.py "+arg)
-        time.sleep(tf)
+        time.sleep(1)
     elif req.mode == 1:
         os.system("sudo python3 ~/pitch_ws/src/srm-pitch/led/srv/quarter_led_exe.py "+arg)
-        time.sleep(tf)
+        time.sleep(1)
     elif req.mode == 2:
         os.system("sudo python3 ~/pitch_ws/src/srm-pitch/led/srv/static_led_exe.py "+arg)
         time.sleep(1)
