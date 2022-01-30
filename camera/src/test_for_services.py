@@ -9,7 +9,7 @@ def camera_client(data):
     try:
         switch = rospy.ServiceProxy('camera_service', SwitchService)
         res = switch(data)
-        return res.nb_finger, res.thumb_state, res.distance, res.color_code, res.color_occurrence
+        return res.nb_finger, res.thumb_state, res.distance, res.color_name, res.color_occurrence
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
