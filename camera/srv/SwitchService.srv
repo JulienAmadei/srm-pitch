@@ -5,3 +5,4 @@ int16 thumb_state
 int16 distance
 int16[] color_code
 bool color_occurrence
+int16 height

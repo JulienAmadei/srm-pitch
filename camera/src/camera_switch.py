@@ -8,7 +8,7 @@ def find_player_client():
     try:
         find_player = rospy.ServiceProxy('find_player_service', FindPlayerService)
         res = find_player()
-        return 0, 0, res.distance, [0], 0
+        return 0, 0, res.distance, [0], 0, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -17,7 +17,7 @@ def finger_counter_client():
     try:
         finger_counter = rospy.ServiceProxy('finger_counter_service', FingerCounterService)
         res = finger_counter()
-        return res.nb_finger, res.thumb_state, 0, [0], 0
+        return res.nb_finger, res.thumb_state, 0, [0], 0, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -26,7 +26,7 @@ def wheel_client():
     try:
         wheel_color = rospy.ServiceProxy('wheel_service', WheelService)
         res = wheel_color()
-        return 0, 0, 0, res.color_code, 0
+        return 0, 0, 0, res.color_code, 0, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -35,7 +35,7 @@ def color_selection_green_client():
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
         res = color_selection([70,0,0,90,255,255])
-        return 0, 0, 0, [0], res.occurrence, res.height
+        return 0, 0, 0, [0], res.occurrence, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -44,7 +44,7 @@ def color_selection_blue_client():
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
         res = color_selection([95,0,0,140,255,255])
-        return 0, 0, 0, [0], res.occurrence
+        return 0, 0, 0, [0], res.occurrence, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
@@ -53,7 +53,7 @@ def color_selection_red_client():
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
         res = color_selection([140,0,0,180,255,255])
-        return 0, 0, 0, [0], res.occurrence
+        return 0, 0, 0, [0], res.occurrence, 0
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
