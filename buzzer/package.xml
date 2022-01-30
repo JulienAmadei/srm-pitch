@@ -2,13 +2,10 @@
 <package format="2">
   <name>buzzer</name>
   <version>1.0.0</version>
-  <description>The buzzer package</description>
+  <description>Buzzer package used to interact with an Alphabot2 robot's buzzer</description>
 
    <!-- license -->
   <license>BSD</license>
-
-  <!-- Website -->
-  <url type="website">http://wiki.ros.org/Services</url>
 
   <!-- Author -->
   <maintainer email="Julien.Amadei@sigma-clermont.fr">Julien</maintainer>
@@ -27,5 +24,4 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
-
 </package>

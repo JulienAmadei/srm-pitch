@@ -159,7 +159,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
  catkin_install_python(PROGRAMS
-   src/ir_line_sensor_listener.py  src/ir_line_sensor_talker.py
+   src/ir_line_sensor_listener_example.py  src/ir_line_sensor_talker.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

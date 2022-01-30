@@ -1,4 +1,0 @@
-<launch>
-  <node name="remote_listener" pkg="ir_remote" type="ir_listener.py" output="screen" />
-  <node name="remote_input" pkg="ir_remote" type="ir_talker.py" output="screen" />
-</launch>

@@ -38,13 +38,12 @@ Once the necessary distance is reached, Pitch will look at the user and prompt t
 * Should Pitch win, it will blink ***(LEDs)*** and vibrate ***(Buzzer)***, while spinning around/dancing ***(CC Motors)***, then ask for another game.
 * If the user agrees to another game, the game loop continues.
 * If the user says no, Pitch will act as if the game was declined.
-* If Pitch loses, it will act as if the game was declined.
 
 ### Hardware
 * 2 IR Sensors for Object-proximity sensing
 * 1 Ultrasound-Proximity Sensor – Not necessarily present, but there are pins for a HC-SR04 type sensor.
 * 2 CC Motors
-* 1 Color Camera (Pannable & Tiltable)
+* 1 Color Camera (Logitech C270 - Pannable & Tiltable)
 * 1 Buzzer
 * 1 Joystick (unused in our use case)
 * 4 RGB LEDs

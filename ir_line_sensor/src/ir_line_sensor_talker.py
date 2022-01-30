@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+#########################
+# Imports
 from turtle import end_fill
 import rospy
 import RPi.GPIO as GPIO
@@ -7,7 +8,12 @@ from AB2.TRSensors import TRSensor
 from std_msgs.msg import Bool
 import time
 
+#########################
+# Functions
 def talker():
+    """
+    Generic Talker
+    """
     pub_Line = rospy.Publisher('ir_line_sensor', Bool, queue_size = 10) 
     rospy.init_node('ir_line_sensor_talker', anonymous=True)
     rate = rospy.Rate(10) # 10hz
@@ -18,17 +24,12 @@ def talker():
             line_status = False
         else:
             line_status = True
-        #msg = "Is line found (%s)" % line_status
-        #print(msg)
-
-        # Publishes a string to our messages topic
         pub_Line.publish(line_status)
-        # Sleeps just long enough to maintain the desired rate through the loop. 
         rate.sleep()
 
 # To execute when invoked directly 
 if __name__ == '__main__':
-    print("[IR Line Sensor listener] Running.")
+    print("[IR_LINE_SENSOR PACKAGE] IR Line Sensor Talker running.")
     TR = TRSensor()
     # PINS and INIT
     GPIO.setmode(GPIO.BCM)

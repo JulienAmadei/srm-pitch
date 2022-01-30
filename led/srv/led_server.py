@@ -1,9 +1,3 @@
-# NeoPixel library strandtest example
-# Author: Louis
-#
-# inputs ( time/int/, mode/int/, color/arrayRGB/)
-# outputs ( end_of_task_bool ) 
-
 #!/usr/bin/env python
 
 from __future__ import print_function
@@ -42,7 +36,7 @@ def blink_led_server():
     
 
 if __name__ == "__main__":
-    print("[LED server] Running.")
+    print("[LED PACKAGE] Server Running.")
     blink_led_server()
 
 

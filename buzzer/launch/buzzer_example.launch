@@ -1,0 +1,4 @@
+<launch>
+  <node name="buzzer_client" pkg="buzzer" type="buzzer_example_client.py" output="screen" launch-prefix="gnome-terminal --command"/>
+  <node name="buzzer_server" pkg="buzzer" type="buzzer_server.py" output="screen" launch-prefix="gnome-terminal --command" />
+</launch>

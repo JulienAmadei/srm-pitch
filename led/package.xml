@@ -2,11 +2,10 @@
 <package format="2">
   <name>led</name>
   <version>1.0.0</version>
-  <description>The LED package</description>
+  <description>The LED package used to interact with an Alphabot2's LED strip</description>
 
    <!-- license -->
   <license>BSD</license>
-
 
   <!-- Author -->
   <maintainer email="louis.guigon@sigma-clermont.fr">Louis Guigon</maintainer>
@@ -25,5 +24,4 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
-
 </package>

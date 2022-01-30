@@ -63,7 +63,7 @@ class ServoAction(object):
         success = True
         
 if __name__ == '__main__':
-    print("[Servo action server] Running.")
+    print("[SERVO PACKAGE] Action Server running.")
     rospy.init_node('servo_action_server')
     server = ServoAction(rospy.get_name())
     rospy.spin()
