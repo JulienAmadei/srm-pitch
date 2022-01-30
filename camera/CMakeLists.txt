@@ -20,7 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   SwitchService.srv
-  ColorRecognitionService.srv
+  WheelService.srv
+  ColorSelectionService.srv
   FindPlayerService.srv
   FingerCounterService.srv
 )
@@ -117,6 +118,8 @@ catkin_install_python(PROGRAMS
 	src/camera_switch.py
 	src/test_for_services.py
 	src/color_selection_test.py
+	src/wheel.py
+	src/wheel_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

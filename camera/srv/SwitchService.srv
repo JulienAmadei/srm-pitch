@@ -4,4 +4,4 @@ int16 nb_finger
 int16 thumb_state
 int16 distance
 int16[] color_code
-int16 color_occurence
+bool color_occurrence

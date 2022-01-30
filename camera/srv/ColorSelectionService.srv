@@ -1,3 +1,4 @@
 int16[] color_code
 ---
-int32[] color_occurrence
+bool occurrence
+int16 height

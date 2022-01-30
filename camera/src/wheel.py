@@ -58,6 +58,12 @@ def getContours(imgCon,imgMatch):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if (area>15000):
+            M = cv2.moments(cnt)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            # draw the contour and center of the shape on the image
+            cv2.circle(imgMatch, (cX, cY), 7, (255, 255, 255), -1)
+            cv2.putText(imgMatch, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.drawContours(imgCon, cnt, -1, (255, 0, 255), 3)
             cv2.drawContours(imgMatch, cnt, -1, (255, 0, 255), 3)
             peri = cv2.arcLength(cnt, True)
@@ -70,7 +76,6 @@ def getContours(imgCon,imgMatch):
             hull = cv2.convexHull(cnt, returnPoints=False)
             defects = cv2.convexityDefects(cnt, hull)
             bigCon += 1
-    print(bigCon)
     return imgCon,imgMatch
 
 def handle_color_selection(img,req):

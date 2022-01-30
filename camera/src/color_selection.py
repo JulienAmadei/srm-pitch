@@ -61,7 +61,9 @@ def mask_values():
     #s_max = 255
     #v_min = 0
     #v_max = 255
-    
+    #green = 77 89
+    #blue = 100 140
+    #red = 145 179
     h_min = cv2.getTrackbarPos("HUE Min","HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
@@ -71,8 +73,6 @@ def mask_values():
     
     vals = h_min,s_min,v_min,h_max,s_max,v_max
     return vals
-    
-    
 
 def colorFilter(img, vals):
     lower_blue = np.array([vals[0],vals[1], vals[2]])
