@@ -44,16 +44,16 @@ def handle_wheel(req):
     print('height_blue',height_blue)
     
     if height_red == height_green == height_blue:
-        return [0,0,0]
+        return ([0,0,0])
     elif height_red > height_blue: 
         if height_red > height_green:
-            return [255,0,0]
+            return ([255,0,0])
         else : 
-            return [0,255,0]
+            return ([0,255,0])
     elif height_green > height_blue:
-        return [0,255,0]
+        return ([0,255,0])
     else :
-        return [0,0,255]
+        return ([0,0,255])
     
 def server_main():
   rospy.init_node('wheel_server')
