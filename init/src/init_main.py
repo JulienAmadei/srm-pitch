@@ -38,8 +38,8 @@ def camera_client(data):
     @return int color_occurence (is the color color_name seen)
     @return int height (Height of the seen color)
     """
+    rospy.wait_for_service("camera_service")
     try:
-        rospy.wait_for_service("camera_service")
         switch = rospy.ServiceProxy(
             "camera_service", SwitchService
         )  # Use the SwitchService for ease of use
@@ -129,7 +129,6 @@ def ir_callback(button):
     global chosen_game_ID
     chosen_game_ID = -1
     msg = button.data # Get the message string
-    print(f"msg : {msg}")
     if msg == "0 (0x16)":
         chosen_game_ID = 0 # None
     if msg == "1 (0x0C)":
@@ -399,7 +398,7 @@ def Whl_color():
     """
     color = choice([red, green, blue])
     print(
-        f"[PITCH - WHEEL - COLOR CHOICE] I'm going with... {color} ! I'll light up in {color}."
+        f"[PITCH - WHEEL - COLOR CHOICE] I'm going with... {color[1]} ! I'll light up in {color[1]}."
     )
     return color
 
@@ -463,7 +462,7 @@ def Smn_color():
     @return array color (array containing the RGB code and name string)
     """
     color = choice([red, green, blue])
-    print("[PITCH - SIMON - COLOR CHOICE] Please show me something that is", color, "!")
+    print("[PITCH - SIMON - COLOR CHOICE] Please show me something that is", color[1], "!")
     return color
 
 
@@ -502,7 +501,7 @@ if __name__ == "__main__":
                 user_distance, neck_angle = look_for_user() # Register the current user distance
                 if user_distance == -1: # If no user is found nearby,
                     servo_client(randint(-50, 50), -30) # randomly move servos
-            print("[PITCH - LOOK FOR USER] Found someone !")
+            print("[PITCH - LOOKING FOR USER] Found someone !")
             led_blink_client(0, 2, [0, 255, 0]) # Blink Green to have visual feedback
             buzzer_client(0.2) # Buzz for sound feedback
             led_blink_client(0, 2, [0, 0, 0]) # Turn off the LEDs

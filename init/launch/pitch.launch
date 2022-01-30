@@ -22,6 +22,5 @@
   <node name="servo_action_server" pkg="servo" type="servo_action_server.py" output="screen"/>
   
   <!-- PITCH DIALOG BOX -->
-  <!-- Will be launched in another terminal window thanks to launch-prefix="gnome-terminal command" -->
-  <node name="pitch_client" pkg="init" type="init_main.py" output="screen" launch-prefix="gnome-terminal --command"/>
+  <node name="pitch_client" pkg="init" type="init_main.py" output="screen"/>
 </launch>
