@@ -19,3 +19,4 @@ if __name__ == "__main__":
     obj_to_detect = 'wheel'
     var1 = camera_client(obj_to_detect)
     print(var1)
+    rospy.spin()
