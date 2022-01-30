@@ -102,23 +102,12 @@ include_directories(
 catkin_install_python(PROGRAMS 
 	src/color_selection.py
 	src/color_selection_server.py
-	src/edge_detection.py
-	src/webcam_pub.py
-	src/webcam_sub.py
-	src/webcam_pub_autoadjust.py
-	src/rock_paper_scissors_view.py
-	src/rock_paper_scissors_view_v2.py
 	src/finger_counter_view.py
-	src/finger_counter_sw.py
 	src/finger_counter_server.py
 	src/find_player_view.py
-	src/find_player_sw.py
 	src/find_player_server.py
-	src/object_recognition.py
 	src/camera_switch.py
 	src/test_for_services.py
-	src/color_selection_test.py
-	src/wheel.py
 	src/wheel_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

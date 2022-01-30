@@ -6,6 +6,11 @@ import cv2
 
 ################################################################
 
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
 def automatic_brightness_and_contrast(image, clip_hist_percent=1):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
@@ -111,12 +116,16 @@ def ros_main():
     
         if face_width_in_frame == 0 :
           distance = -1
-        else :    
+        else :
           distance = (known_width * focal_length_found)/face_width_in_frame
+          cv2.line(auto_result, (30, 30), (230, 30), RED, 32)
+          cv2.line(auto_result, (30, 30), (230, 30), BLACK, 28)
+          cv2.putText(auto_result, f"Distance: {round(distance,2)} CM", (30, 35),cv2.FONT_HERSHEY_COMPLEX, 0.6, GREEN, 2)
+          
         
         print("Distance " + str(distance))
         
-        cv2.imshow('',frame)
+        cv2.imshow('',auto_result)
         cv2.waitKey(1)
         
         # Print debugging information to the terminal

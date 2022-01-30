@@ -55,15 +55,6 @@ def automatic_brightness_and_contrast(image, clip_hist_percent=1):
     return (auto_result, alpha, beta)
 
 def mask_values():
-    #h_min = 0
-    #h_max = 30
-    #s_min = 0
-    #s_max = 255
-    #v_min = 0
-    #v_max = 255
-    #green = 77 89
-    #blue = 100 140
-    #red = 145 179
     h_min = cv2.getTrackbarPos("HUE Min","HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
@@ -91,7 +82,12 @@ def getContours(imgCon,imgMatch):
     myPos = np.zeros(4)
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if (area>1000):
+        if (area>10000):
+            M = cv2.moments(cnt)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            cv2.circle(imgMatch, (cX, cY), 7, (255, 255, 255), -1)
+            cv2.putText(imgMatch, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.drawContours(imgCon, cnt, -1, (255, 0, 255), 3)
             cv2.drawContours(imgMatch, cnt, -1, (255, 0, 255), 3)
             peri = cv2.arcLength(cnt, True)
@@ -120,6 +116,8 @@ def hand_main(img):
     imgContour,imgResult = getContours(imgFilter,imgResult)
 
     ## TO DISPLAY
+    stack = np.hstack([imgColorFilter,imgContour,imgResult])
+    cv2.imshow("stack",stack)
     cv2.imshow("Result",imgResult)
     cv2.waitKey(1)
 
