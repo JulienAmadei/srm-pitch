@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>motor</name>
+  <version>1.0.0</version>
   <description>motor package used to interact with an Alphabot2 robot's CC motors</description>
   
   <!-- license -->
