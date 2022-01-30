@@ -6,6 +6,8 @@
   <node name="camera_server_switcher" pkg="camera" type="camera_switch.py" output="screen" />
   <node name="camera_find_player_server" pkg="camera" type="find_player_server.py" output="screen" />
   <node name="camera_finger_counter_server" pkg="camera" type="finger_counter_server.py" output="screen" />
+  <node name="color_selection_server" pkg="camera" type="color_selection_server.py" output="screen" />
+  <node name="wheel_server" pkg="camera" type="wheel_server.py" output="screen" />
  
   <!-- IR Line Sensor Talker -->
   <node name="ir_line_sensor_talker" pkg="ir_line_sensor" type="ir_line_sensor_talker.py" output="screen" />

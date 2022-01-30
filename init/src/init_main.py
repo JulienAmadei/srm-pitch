@@ -146,7 +146,7 @@ def look_for_user():
             else:
                 t = t + 1
         else:
-            z = z + 10
+            z = z + 25
             if z >= 50:
                 z = -50
                 motor_client("lft",1.0)
@@ -320,10 +320,11 @@ def Smn_camera_analysis(color):
     rospy.wait_for_service("camera_service")
     while t < 3:  # 3 Tests
         obj_to_detect = color[1]
+        print(obj_to_detect)
         var1 = camera_client(obj_to_detect)
-        found = var1[3]
+        found = var1[4]
         if found:
-            color = False
+            color = True
         else:
             color = False
         t = t + 1
@@ -418,7 +419,7 @@ if __name__ == "__main__":
                             led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
                             chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
                             Whl_init() # Initialize the RPS playground
-                            while Smn_playerReady == 1: # Player is considered ready as they enter the game
+                            while Whl_playerReady == 1: # Player is considered ready as they enter the game
                                 color = Whl_color()
                                 led_blink_client(0, 2, color[0])
                                 found = Whl_camera_analysis()
@@ -427,14 +428,14 @@ if __name__ == "__main__":
                                     print("well done !")
                                 else:
                                     print("Too late, I lose!")
-                                Smn_playerReady = 0
+                                Whl_playerReady = 0
                                 time.sleep(5)
                                 led_blink_client(0, 2, [0, 0, 0])
                                 print("Wanna play again ?")
                                 #% Use the wanna_play function
-                                while Smn_playerReady == 0: # Wait for user feedback
-                                    Smn_playerReady = wanna_play()
-                                    print(Smn_playerReady)
+                                while Whl_playerReady == 0: # Wait for user feedback
+                                    Whl_playerReady = wanna_play()
+                                    print(Whl_playerReady)
                                 
                             
                         elif chosen_game_ID == 3: # ID 3 - Simon
@@ -448,8 +449,7 @@ if __name__ == "__main__":
                                 Smn_ready_steady()
                                 color = Smn_color()
                                 led_blink_client(timer, 0, color[0])
-                                begin = time.time()
-                                found = Smn_camera_analysis()
+                                found = Smn_camera_analysis(color)
                                 
                                 if found:
                                     print("well done !")
@@ -466,7 +466,6 @@ if __name__ == "__main__":
 
             else: # The user does not want to play
                 led_blink_client(2, 0, [255, 0, 0]) # Pitch lights up in red
-                break
             servo_client(0, -80)
             led_blink_client(0, 2, [0, 0, 0])
             break
