@@ -133,5 +133,5 @@ def server_main():
   rospy.spin()
 
 if __name__ == '__main__':
-  print("[Camera - Find Player server] Running.")  
+  print("[Camera - color_selection server] Running.")  
   server_main()

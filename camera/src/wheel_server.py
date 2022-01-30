@@ -55,13 +55,11 @@ def handle_wheel():
     else :
         return [0,0,255]
     
-    
-
 def server_main():
-  rospy.init_node('color_selection_server_py')
-  s = rospy.Service('color_selection_service', WheelService, handle_wheel)
+  rospy.init_node('wheel_server')
+  s = rospy.Service('wheel_service', WheelService, handle_wheel)
   rospy.spin()
 
 if __name__ == '__main__':
-  print("[Camera - Find Player server] Running.")  
+  print("[Camera - Wheel server] Running.")  
   server_main()
