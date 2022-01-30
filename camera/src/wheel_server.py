@@ -11,7 +11,7 @@ def color_selection_green_client():
     rospy.wait_for_service('color_selection_service')
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
-        res = color_selection([70,0,0,90,255,255])
+        res = color_selection([60,0,0,70,255,255])
         return res.height
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
@@ -20,7 +20,7 @@ def color_selection_blue_client():
     rospy.wait_for_service('color_selection_service')
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
-        res = color_selection([95,0,0,140,255,255])
+        res = color_selection([110,0,0,130,255,255])
         return res.height
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
@@ -29,7 +29,7 @@ def color_selection_red_client():
     rospy.wait_for_service('color_selection_service')
     try:
         color_selection = rospy.ServiceProxy('color_selection_service', ColorSelectionService)
-        res = color_selection([140,0,0,180,255,255])
+        res = color_selection([0,135,0,5,255,255])
         return res.height
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
