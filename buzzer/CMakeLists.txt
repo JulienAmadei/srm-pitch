@@ -56,6 +56,6 @@ include_directories(
 #############
 
 ## Mark executable scripts (Python etc.) for installation
-catkin_install_python(PROGRAMS src/buzzer_server.py src/buzzer_client.py
+catkin_install_python(PROGRAMS src/buzzer_server.py src/buzzer_example_client.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

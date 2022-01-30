@@ -5,7 +5,6 @@
 import rospy
 from std_msgs.msg import String 
 
-
 def ir_callback(data):
     
     if "None (None)" != data.data:

@@ -153,7 +153,7 @@ include_directories(
 ## Install ##
 #############
 ## Mark executable scripts (Python etc.) for installation
-catkin_install_python(PROGRAMS scripts/ir_listener.py scripts/ir_talker.py
+catkin_install_python(PROGRAMS scripts/ir_remote_listener_example.py scripts/ir_remote_talker.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 
 #############

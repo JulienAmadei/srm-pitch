@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ir_line_sensor</name>
+  <name>ir_proximity_sensor</name>
   <version>1.0.0</version>
-  <description>The IR Line Sensor package used to interact with an Alphabot2 robot's Line Sensors</description>
+  <description>ir_proximity_sensor package used to interact with an Alphabot2 robot's proximity sensors</description>
 
-   <!-- license -->
+  <!-- license -->
   <license>BSD</license>
 
   <!-- Author -->

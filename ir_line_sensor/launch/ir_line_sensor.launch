@@ -2,5 +2,5 @@
         <!-- Talker Node -->
         <node pkg="ir_line_sensor" type="ir_line_sensor_talker.py" name="ir_line_sensor_talker" output="screen" launch-prefix="gnome-terminal --command"/>
         <!-- Listener Node -->
-        <node pkg="ir_line_sensor" type="ir_line_sensor_listener.py" name="ir_line_sensor_listener" output="screen" launch-prefix="gnome-terminal --command"/>
+        <node pkg="ir_line_sensor" type="ir_line_sensor_listener_example.py" name="ir_line_sensor_listener" output="screen" launch-prefix="gnome-terminal --command"/>
 </launch>

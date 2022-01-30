@@ -1,4 +1,0 @@
-<launch>
-  <node name="buzzer_client" pkg="buzzer" type="buzzer_client.py" output="screen" />
-  <node name="buzzer_server" pkg="buzzer" type="buzzer_server.py" output="screen" />
-</launch>

@@ -120,16 +120,8 @@ def talker():
                 msg = msg
 
             if key != None:
-                # Prints the messages to screen, write them to the Node's log file, and write them to rosout.
                 rospy.loginfo(msg)
-                # Publishes a string to our messages topic
                 pub.publish(msg)
-                       
-		#if key != None:
-		
-		    # time.sleep(1)
-		
-		# Sleeps just long enough to maintain the desired rate through the loop. 
             rate.sleep()
         except KeyboardInterrupt:
             GPIO.cleanup()
@@ -138,7 +130,7 @@ def talker():
 
 # To execute when invoked directly 
 if __name__ == '__main__':
-    print("[IR Remote listener] Running.")
+    print("[IR_REMOTE PACKAGE ] Talker Running.")
     try:
         msg = ""
         talker()
