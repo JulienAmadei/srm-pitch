@@ -61,5 +61,5 @@ def server_main():
   rospy.spin()
 
 if __name__ == '__main__':
-  print("[Camera - Wheel server] Running.")  
+  print("[CAMERA PACKAGE] Wheel server running.")  
   server_main()

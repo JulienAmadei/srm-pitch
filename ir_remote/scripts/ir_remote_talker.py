@@ -130,7 +130,7 @@ def talker():
 
 # To execute when invoked directly 
 if __name__ == '__main__':
-    print("[IR_REMOTE PACKAGE ] Talker Running.")
+    print("[IR_REMOTE PACKAGE] Talker Running.")
     try:
         msg = ""
         talker()

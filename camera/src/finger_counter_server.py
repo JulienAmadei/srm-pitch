@@ -106,5 +106,5 @@ def server_main():
   rospy.spin()
 
 if __name__ == '__main__':
-  print("[Camera - Finger Counter server] Running.")
+  print("[CAMERA PACKAGE] Finger Counter server running.")
   server_main()

@@ -66,7 +66,7 @@ class MotorAction(object):
         success = True
         
 if __name__ == '__main__':
-    print("[Motor action server] Running.")
+    print("[MOTOR PACKAGE] Action Server Running.")
     rospy.init_node('motor_action_server')
     server = MotorAction(rospy.get_name())
     rospy.spin()
