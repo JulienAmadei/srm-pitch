@@ -1,2 +1,2 @@
 ---
-int16[] color_code
+string color_name

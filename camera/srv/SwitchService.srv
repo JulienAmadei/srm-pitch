@@ -3,6 +3,6 @@ string obj
 int16 nb_finger
 int16 thumb_state
 int16 distance
-int16[] color_code
+string color_name
 bool color_occurrence
 int16 height
