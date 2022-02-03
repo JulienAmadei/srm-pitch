@@ -583,7 +583,7 @@ if __name__ == "__main__":
                         ###########     
                         elif chosen_game_ID == 3: # ID 3 - Simon
                             choice_done = True
-                            led_blink_client(0, 2, [0, 255, 255]) # Blink Turquoise to show selection
+                            led_blink_client(0, 2, [255, 255, 0]) # Blink Yellow to show selection
                             chosen_game_ID = -1 # Cancel chosen_game_ID, as unused as of now
                             Smn_init() # Initialize the RPS playground
                             while Smn_playerReady == 1: # Player is considered ready as they enter the game
